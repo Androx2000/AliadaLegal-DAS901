@@ -12,6 +12,13 @@ public class ApplicationDbContext
         : base(options)
     {
     }
+
     public DbSet<Cliente> Clientes { get; set; }
-    = null!;
+        = null!;
+
+    public DbSet<Pais> Paises { get; set; }
+        = null!;
+
+    public DbSet<TipoDocumento> TiposDocumento { get; set; }
+        = null!;
 }
