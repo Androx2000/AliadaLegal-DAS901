@@ -5,11 +5,13 @@ using Microsoft.EntityFrameworkCore;
 namespace AliadaLegal.Web.Data;
 
 public class ApplicationDbContext
-    : IdentityDbContext<ApplicactionUser>
+    : IdentityDbContext<ApplicationUser>
 {
     public ApplicationDbContext(
         DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
     }
+    public DbSet<Cliente> Clientes { get; set; }
+    = null!;
 }
