@@ -16,4 +16,7 @@ public string Nombre {get; set; } = string.Empty;
 [StringLength(2, MinimumLength = 2)]
 public string CodigoIso { get; set; } = string.Empty;
 
+public ICollection<Tramite> Tramites { get; set; }
+    = new List<Tramite>();
+    
 }

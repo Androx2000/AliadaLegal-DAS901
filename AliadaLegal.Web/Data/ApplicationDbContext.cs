@@ -21,4 +21,6 @@ public class ApplicationDbContext
 
     public DbSet<TipoDocumento> TiposDocumento { get; set; }
         = null!;
+    public DbSet<Tramite> Tramites { get; set; }
+        = null!;
 }

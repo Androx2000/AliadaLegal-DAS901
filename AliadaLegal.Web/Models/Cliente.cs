@@ -25,4 +25,7 @@ public class Cliente
 
     public DateTime FechaRegistro { get; set; }
         = DateTime.UtcNow;
+
+    public ICollection<Tramite> Tramites { get; set; }
+        = new List<Tramite>();
 }
