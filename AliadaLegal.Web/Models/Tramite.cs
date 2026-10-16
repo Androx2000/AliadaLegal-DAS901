@@ -35,4 +35,6 @@ public class Tramite
     public int? AliadoId { get; set; }
 
     public Aliado? Aliado { get; set; }
+
+    public Envio? Envio { get; set; }
 }
