@@ -26,4 +26,7 @@ public class ApplicationDbContext
 
     public DbSet<Aliado> Aliados { get; set; }
         = null!;
+    public DbSet<Envio> Envios { get; set; }
+        = null!;
+
 }
