@@ -23,4 +23,7 @@ public class ApplicationDbContext
         = null!;
     public DbSet<Tramite> Tramites { get; set; }
         = null!;
+
+    public DbSet<Aliado> Aliados { get; set; }
+        = null!;
 }

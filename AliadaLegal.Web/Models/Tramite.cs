@@ -31,4 +31,8 @@ public class Tramite
 
     [StringLength(1000)]
     public string? Observaciones { get; set; }
+
+    public int? AliadoId { get; set; }
+
+    public Aliado? Aliado { get; set; }
 }
