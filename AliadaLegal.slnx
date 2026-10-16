@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="AliadaLegal.Tests/AliadaLegal.Tests.csproj" />
   <Project Path="AliadaLegal.Web/AliadaLegal.Web.csproj" />
 </Solution>
