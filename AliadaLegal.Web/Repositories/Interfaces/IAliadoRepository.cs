@@ -9,5 +9,6 @@ public interface IAliadoRepository
     Task<Aliado?> ObtenerPorIdAsync(int id);
     Task<bool> ExisteCorreoAsync(string correo, int? excluirId);
     Task AgregarAsync(Aliado aliado);
+        Task<int> ContarTramitesAbiertosAsync(int aliadoId);
     Task GuardarCambiosAsync();
 }

@@ -38,5 +38,8 @@ public class AliadoRepository : IAliadoRepository
 
     public async Task AgregarAsync(Aliado aliado) => await _db.Aliados.AddAsync(aliado);
 
+        public Task<int> ContarTramitesAbiertosAsync(int aliadoId) =>
+        _db.Tramites.CountAsync(t => t.AliadoId == aliadoId && t.Estado != EstadoTramite.Entregado);
+
     public Task GuardarCambiosAsync() => _db.SaveChangesAsync();
 }

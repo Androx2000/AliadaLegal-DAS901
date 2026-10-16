@@ -46,6 +46,23 @@ public class AliadoService : IAliadoService
         if (await _aliados.ExisteCorreoAsync(correo, datos.Id))
             return ResultadoOperacion.Fallo("Otro aliado ya usa ese correo electrónico.");
 
+        var desactiva = existente.Activo && !datos.Activo;
+        var cambiaPais = existente.PaisAsignadoId != datos.PaisAsignadoId;
+
+        if (cambiaPais && await _catalogos.ObtenerPaisAsync(datos.PaisAsignadoId) == null)
+            return ResultadoOperacion.Fallo("El país asignado no existe.");
+
+        if (desactiva || cambiaPais)
+        {
+            var abiertos = await _aliados.ContarTramitesAbiertosAsync(existente.Id);
+            if (abiertos > 0)
+            {
+                var accion = desactiva ? "desactivar al aliado" : "cambiar su país asignado";
+                return ResultadoOperacion.Fallo(
+                    $"No se puede {accion}: tiene {abiertos} trámite(s) abierto(s). Reasígnalos o espera a que se entreguen.");
+            }
+        }
+
         existente.Nombre = datos.Nombre.Trim();
         existente.Correo = correo;
         existente.Telefono = datos.Telefono.Trim();
