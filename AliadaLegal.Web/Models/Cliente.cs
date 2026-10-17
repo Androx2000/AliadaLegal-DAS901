@@ -7,21 +7,28 @@ public class Cliente
     [Key]
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "El nombre es obligatorio.")]
+    [Required]
     [StringLength(150)]
     public string Nombre { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "El correo es obligatorio.")]
-    [EmailAddress(ErrorMessage = "Correo no válido.")]
+    [Required]
+    [EmailAddress]
     [StringLength(254)]
-    public string Email { get; set; } = string.Empty;
+    public string Correo { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "El teléfono es obligatorio.")]
+    [Required]
     [StringLength(30)]
     public string Telefono { get; set; } = string.Empty;
 
     [Required]
     public TipoCliente TipoCliente { get; set; }
+
+    public int PaisOrigenId { get; set; }
+
+    public Pais PaisOrigen { get; set; } = null!;
+
+    [StringLength(30)]
+    public string CanalContacto { get; set; } = string.Empty;
 
     public DateTime FechaRegistro { get; set; }
         = DateTime.UtcNow;

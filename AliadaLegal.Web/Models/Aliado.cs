@@ -9,24 +9,25 @@ public class Aliado
 
     [Required]
     [StringLength(150)]
-    public string NombreCompleto { get; set; } = string.Empty;
+    public string Nombre { get; set; } = string.Empty;
 
     [Required]
     [EmailAddress]
     [StringLength(254)]
-    public string Email { get; set; } = string.Empty;
-
-    [StringLength(30)]
-    public string? Telefono { get; set; }
+    public string Correo { get; set; } = string.Empty;
 
     [Required]
-    public TipoAliado Tipo { get; set; }
+    [StringLength(30)]
+    public string Telefono { get; set; } = string.Empty;
+
+    [Required]
+    public TipoAliado TipoAliado { get; set; }
 
     public bool Activo { get; set; } = true;
 
-    public int PaisId { get; set; }
+    public int PaisAsignadoId { get; set; }
 
-    public Pais Pais { get; set; } = null!;
+    public Pais PaisAsignado { get; set; } = null!;
 
     public ICollection<Tramite> Tramites { get; set; }
         = new List<Tramite>();
