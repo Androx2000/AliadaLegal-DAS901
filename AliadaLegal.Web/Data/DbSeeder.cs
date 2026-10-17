@@ -16,9 +16,11 @@ public static class DbSeeder
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<Usuario>>();
 
-        // Para el prototipo se crea el esquema directamente.
-        // Si la cátedra exige migraciones: dotnet ef migrations add Inicial && dotnet ef database update
-        await db.Database.EnsureCreatedAsync();
+        // Si el equipo ya generó migraciones se aplican; si no, se crea el esquema directamente.
+        if (db.Database.GetMigrations().Any())
+            await db.Database.MigrateAsync();
+        else
+            await db.Database.EnsureCreatedAsync();
 
         if (await db.Roles.AnyAsync()) return;
 
@@ -29,13 +31,13 @@ public static class DbSeeder
         db.Roles.AddRange(admin, asesor, rolAliado);
 
         // ---- Países ----
-        var sv = new Pais { Nombre = "El Salvador", CodigoIso = "SLV" };
-        var gt = new Pais { Nombre = "Guatemala", CodigoIso = "GTM" };
-        var hn = new Pais { Nombre = "Honduras", CodigoIso = "HND" };
-        var ni = new Pais { Nombre = "Nicaragua", CodigoIso = "NIC" };
-        var mx = new Pais { Nombre = "México", CodigoIso = "MEX" };
-        var co = new Pais { Nombre = "Colombia", CodigoIso = "COL" };
-        var us = new Pais { Nombre = "Estados Unidos", CodigoIso = "USA" };
+        var sv = new Pais { Nombre = "El Salvador", CodigoIso = "SV" };
+        var gt = new Pais { Nombre = "Guatemala", CodigoIso = "GT" };
+        var hn = new Pais { Nombre = "Honduras", CodigoIso = "HN" };
+        var ni = new Pais { Nombre = "Nicaragua", CodigoIso = "NI" };
+        var mx = new Pais { Nombre = "México", CodigoIso = "MX" };
+        var co = new Pais { Nombre = "Colombia", CodigoIso = "CO" };
+        var us = new Pais { Nombre = "Estados Unidos", CodigoIso = "US" };
         db.Paises.AddRange(sv, gt, hn, ni, mx, co, us);
 
         // ---- Tipos de documento ----
