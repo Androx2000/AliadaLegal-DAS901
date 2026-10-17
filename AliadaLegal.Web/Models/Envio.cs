@@ -14,15 +14,13 @@ public class Envio
 
     [Required]
     [StringLength(100)]
-    public string EmpresaTransporte { get; set; }
-        = string.Empty;
+    public string EmpresaEnvio { get; set; } = string.Empty;
 
     [Required]
     [StringLength(150)]
-    public string NumeroRastreo { get; set; }
-        = string.Empty;
+    public string NumeroGuia { get; set; } = string.Empty;
 
-    public DateTime FechaEnvio { get; set; }
+    public DateTime FechaDespacho { get; set; }
         = DateTime.UtcNow;
 
     public DateTime? FechaEntrega { get; set; }
