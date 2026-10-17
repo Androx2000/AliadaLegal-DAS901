@@ -221,6 +221,7 @@ h4, h5, h6 { font-weight: 600; }
 .field-validation-error, .text-danger { color: var(--al-error) !important; font-size: .85rem; display: block; margin-top: .25rem; }
 .input-validation-error { border-color: var(--al-error) !important; }
 .validation-summary-valid { display: none; }
+.form-check-input:checked { background-color: var(--al-azul); border-color: var(--al-azul); }
 .form-acciones {
     display: flex; flex-wrap: wrap; gap: .5rem; justify-content: flex-end;
     padding-top: 1rem; margin-top: 1.5rem; border-top: 1px solid var(--al-borde);

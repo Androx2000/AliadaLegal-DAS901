@@ -21,5 +21,7 @@ Capturas de alta fidelidad generadas desde las **vistas Razor reales** del proye
 | 10 | Nuevo trámite | `/Tramites/Create` | [ver](10-tramite-nuevo-escritorio.png) | [ver](10-tramite-nuevo-movil.png) |
 | 11 | Detalle de trámite (Asesor) | `/Tramites/Details/{id}` | [ver](11-tramite-detalle-escritorio.png) | [ver](11-tramite-detalle-movil.png) |
 | 12 | Detalle de trámite (Aliado) | `/Tramites/Details/{id}` | [ver](12-tramite-detalle-aliado-escritorio.png) | [ver](12-tramite-detalle-aliado-movil.png) |
+| 13 | Lista de aliados (Administrador) | `/Aliados` | [ver](13-aliados-lista-escritorio.png) | [ver](13-aliados-lista-movil.png) |
+| 14 | Editar aliado | `/Aliados/Edit/{id}` | [ver](14-aliado-editar-escritorio.png) | [ver](14-aliado-editar-movil.png) |
 
 Paleta, tipografía y componentes: ver [`../manual-estilos.md`](../manual-estilos.md).

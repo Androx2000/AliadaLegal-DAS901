@@ -238,7 +238,10 @@ Espacios de nombres en `_ViewImports.cshtml`: `AliadaLegal.Web.Models`, `.ViewMo
 | `Clientes/Index` | `ClienteListaViewModel` | `Texto`, `Clientes` (`List<ClienteItemViewModel>`) |
 | ↳ ítem | `ClienteItemViewModel` | `Id`, `Nombre`, `Correo`, `Telefono`, `TipoCliente`, `PaisOrigen`, `TotalTramites` |
 | `Clientes/Details` | `ClienteDetalleViewModel` | `Id`, `Nombre`, `Correo`, `Telefono`, `CanalContacto`, `TipoCliente`, `PaisOrigen`, `FechaRegistro` (DateTime), `Tramites` (`List<TramiteItemViewModel>`) |
-| `Clientes/Create`, `Edit` | `ClienteFormViewModel` | `Id`, `Nombre`, `Correo`, `Telefono`, `TipoCliente` (enum `TipoCliente`), `CanalContacto` (enum `CanalContacto`), `PaisOrigenId`, `Paises` (`IEnumerable<SelectListItem>`) |
+| `Clientes/Create`, `Edit` | `ClienteFormViewModel` | `Id`, `Nombre`, `Correo`, `Telefono`, `TipoCliente` (enum `TipoCliente`), `CanalContacto` (**string**: WhatsApp, Correo, Llamada, SMS), `PaisOrigenId`, `Paises` (`IEnumerable<SelectListItem>`) |
+| `Aliados/Index` | `AliadoListaViewModel` | `Aliados` (`List<AliadoItemViewModel>`) |
+| ↳ ítem | `AliadoItemViewModel` | `Id`, `Nombre`, `Correo`, `Telefono`, `TipoAliado`, `PaisAsignado`, `Activo` (bool) |
+| `Aliados/Create`, `Edit` | `AliadoFormViewModel` | `Id`, `Nombre`, `Correo`, `Telefono`, `TipoAliado` (enum `TipoAliado`), `PaisAsignadoId`, `Activo` (bool), `Paises` (`IEnumerable<SelectListItem>`) |
 | `Tramites/Index` | `TramiteListaViewModel` | `Texto`, `Estado` (`EstadoTramite?`), `EsAliado`, `Tramites` (`List<TramiteItemViewModel>`) |
 | ↳ ítem | `TramiteItemViewModel` | `Id`, `Codigo`, `Cliente`, `TipoDocumento`, `PaisDestino`, `Estado` (`EstadoTramite`), `Aliado` (string?), `FechaSolicitud` (DateTime) |
 | `Tramites/Create` | `TramiteFormViewModel` | `ClienteId`, `TipoDocumentoId`, `PaisDestinoId`, `Observaciones`, `Clientes`, `TiposDocumento`, `Paises` (`IEnumerable<SelectListItem>`) |
@@ -254,4 +257,5 @@ Notas para el equipo:
 - Los enums deben tener `[Display(Name = "…")]` en cada valor para que los selects muestren el texto bonito (por ejemplo `[Display(Name = "Bufete de abogados")] Bufete`).
 - `AsignarAliadoViewModel` de la rama `feature/modelos-datos` no tiene la lista `Aliados` ni `AliadoId` nullable; el controlador sí los usa. Hay que unificarlo.
 - El menú usa los nombres de rol `"Administrador"`, `"Asesor"` y `"Aliado"` (los mismos de la documentación UX).
-- Las vistas de `Aliados` y `Account` no son de esta rama, pero pueden reutilizar todos los componentes de este manual (`Account/Login` ya usa `.al-card` y `data-evitar-doble-envio`).
+- `CanalContacto` se maneja como `string`, igual que en el modelo `Cliente`; el formulario ofrece opciones fijas (WhatsApp, Correo, Llamada, SMS).
+- Las vistas de `Aliados` (Index, Create, Edit) están en esta rama. Create y Edit solo se muestran al rol Administrador; el Asesor ve la lista en solo lectura.

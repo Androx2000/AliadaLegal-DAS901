@@ -1,7 +1,7 @@
 @model ClienteFormViewModel
 @*
     Campos compartidos por Create y Edit.
-    Los selects de enum usan Html.GetEnumSelectList: el texto sale de [Display(Name = "...")] en cada valor del enum.
+    TipoCliente usa Html.GetEnumSelectList (enum). CanalContacto es string en el modelo Cliente: opciones fijas.
 *@
 <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
@@ -46,7 +46,13 @@
         </div>
         <div class="col-md-6">
             <label asp-for="CanalContacto" class="form-label">Canal de contacto preferido</label>
-            <select asp-for="CanalContacto" asp-items="Html.GetEnumSelectList<CanalContacto>()" class="form-select"></select>
+            <select asp-for="CanalContacto" class="form-select">
+                <option value="">Seleccione…</option>
+                <option value="WhatsApp">WhatsApp</option>
+                <option value="Correo">Correo electrónico</option>
+                <option value="Llamada">Llamada telefónica</option>
+                <option value="SMS">SMS</option>
+            </select>
             <span asp-validation-for="CanalContacto"></span>
         </div>
     </div>
