@@ -80,9 +80,9 @@ public class AppDbContext : DbContext
 
         // Cada aliado pertenece a un país.
         modelBuilder.Entity<Aliado>()
-            .HasOne(a => a.Pais)
+            .HasOne(a => a.PaisAsignado)
             .WithMany()
-            .HasForeignKey(a => a.PaisId)
+            .HasForeignKey(a => a.PaisAsignadoId)
             .OnDelete(DeleteBehavior.Restrict);
 
         // Un trámite puede tener un envío.
@@ -96,5 +96,11 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Pais>()
             .HasIndex(p => p.CodigoIso)
             .IsUnique();
+            
+        modelBuilder.Entity<Cliente>()
+            .HasOne(c => c.PaisOrigen)
+            .WithMany()
+            .HasForeignKey(c => c.PaisOrigenId)
+            .OnDelete(DeleteBehavior.Restrict);    
     }
 }
