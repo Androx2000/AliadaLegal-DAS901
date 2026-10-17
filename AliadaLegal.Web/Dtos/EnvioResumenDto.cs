@@ -6,13 +6,13 @@ public class EnvioResumenDto
 
     public int TramiteId { get; set; }
 
-    public string EmpresaTransporte { get; set; }
+    public string EmpresaEnvio { get; set; }
         = string.Empty;
 
-    public string NumeroRastreo { get; set; }
+    public string NumeroGuia { get; set; }
         = string.Empty;
 
-    public DateTime FechaEnvio { get; set; }
+    public DateTime FechaDespacho { get; set; }
 
     public DateTime? FechaEntrega { get; set; }
 }

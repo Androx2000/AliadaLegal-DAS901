@@ -25,7 +25,7 @@ public class CrearTramiteViewModelTests
         return new CrearTramiteViewModel
         {
             ClienteId = 1,
-            PaisId = 1,
+            PaisDestinoId = 1,
             TipoDocumentoId = 1,
             Observaciones = "Solicitud de partida de nacimiento"
         };
@@ -44,15 +44,15 @@ public class CrearTramiteViewModelTests
     }
 
     [Fact]
-    public void PaisIdNegativo_DebeSerInvalido()
+    public void PaisDestinoIdNegativo_DebeSerInvalido()
     {
         var tramite = CrearTramiteValido();
-        tramite.PaisId = -1;
+        tramite.PaisDestinoId = -1;
 
         var errores = Validar(tramite);
 
         Assert.Contains(errores, e =>
-            e.MemberNames.Contains("PaisId"));
+            e.MemberNames.Contains("PaisDestinoId"));
     }
 
     [Fact]

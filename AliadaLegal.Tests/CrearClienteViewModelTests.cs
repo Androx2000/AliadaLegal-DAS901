@@ -39,12 +39,12 @@ public class CrearClienteViewModelTests
     public void CorreoIncorrecto_DebeSerInvalido()
     {
         var cliente = CrearClienteValido();
-        cliente.Email = "correo-invalido";
+        cliente.Correo = "correo-invalido";
 
         var errores = Validar(cliente);
 
         Assert.Contains(errores, e =>
-            e.MemberNames.Contains("Email"));
+            e.MemberNames.Contains("Correo"));
     }
 
     [Fact]
@@ -69,14 +69,16 @@ public class CrearClienteViewModelTests
         Assert.Empty(errores);
     }
 
-    private static CrearClienteViewModel CrearClienteValido()
+private static CrearClienteViewModel CrearClienteValido()
+{
+    return new CrearClienteViewModel
     {
-        return new CrearClienteViewModel
-        {
-            Nombre = "Cliente de Prueba",
-            Email = "cliente@example.com",
-            Telefono = "78901234",
-            TipoCliente = TipoCliente.Individual
-        };
-    }
+        Nombre = "Cliente de Prueba",
+        Correo = "cliente@example.com",
+        Telefono = "78901234",
+        TipoCliente = TipoCliente.Individual,
+        PaisOrigenId = 1,
+        CanalContacto = "Correo Electrónico"
+    };
+}
 }

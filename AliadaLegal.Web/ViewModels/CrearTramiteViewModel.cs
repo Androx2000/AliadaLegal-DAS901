@@ -11,8 +11,8 @@ public class CrearTramiteViewModel
     public int ClienteId {get; set; }
     
     [Range(1, int.MaxValue,
-    ErrorMessage ="Seleccione un pais valido.")]
-    public int PaisId { get; set; }
+    ErrorMessage = "Seleccione un país válido.")]
+public int PaisDestinoId { get; set; }
 
     [Range(1, int.MaxValue,
     ErrorMessage ="Seleccione un documento valido.")]
