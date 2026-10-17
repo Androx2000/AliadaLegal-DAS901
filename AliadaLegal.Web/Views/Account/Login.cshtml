@@ -1,0 +1,43 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Ingresar";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-5">
+        <div class="al-card">
+            <div class="al-card-body p-4">
+                <h1 class="h3 mb-1">Ingresar</h1>
+                <p class="texto-suave">Acceso para asesores, administradores y aliados de Aliada Legal.</p>
+
+                <form asp-action="Login" method="post" novalidate data-evitar-doble-envio>
+                    <input type="hidden" asp-for="ReturnUrl" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Correo" class="form-label"></label>
+                        <input asp-for="Correo" class="form-control" autocomplete="username" autofocus />
+                        <span asp-validation-for="Correo" class="field-validation-error"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label"></label>
+                        <input asp-for="Password" class="form-control" autocomplete="current-password" />
+                        <span asp-validation-for="Password" class="field-validation-error"></span>
+                    </div>
+                    <div class="form-check mb-4">
+                        <input asp-for="Recordarme" class="form-check-input" />
+                        <label asp-for="Recordarme" class="form-check-label"></label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+                </form>
+            </div>
+        </div>
+        <p class="text-center texto-suave mt-3 small">
+            ¿Es cliente? <a asp-controller="Seguimiento" asp-action="Index">Consulte su trámite aquí</a>, sin iniciar sesión.
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
