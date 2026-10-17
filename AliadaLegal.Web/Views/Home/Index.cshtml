@@ -1,18 +1,117 @@
-﻿@{
+@{
     ViewData["Title"] = "Inicio";
+    var esInterno = User.IsInRole("Administrador") || User.IsInRole("Asesor");
+    var esAliado = User.IsInRole("Aliado");
 }
 
-<div class="text-center mt-5">
-    <h1 class="display-4">Aliada Legal</h1>
+@if (esInterno || esAliado)
+{
+    <div class="encabezado-pagina">
+        <div>
+            <p class="texto-suave mb-1">Bienvenida/o, @User.Identity!.Name</p>
+            <h1>Panel de trabajo</h1>
+        </div>
+        @if (esInterno)
+        {
+            <div class="acciones">
+                <a class="btn btn-outline-primary" asp-controller="Clientes" asp-action="Create"><i class="bi bi-person-plus me-1" aria-hidden="true"></i>Nuevo cliente</a>
+                <a class="btn btn-primary" asp-controller="Tramites" asp-action="Create"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Nuevo trámite</a>
+            </div>
+        }
+    </div>
 
-    <p>
-        Sistema de Gestión de Trámites
-        Legales y Migratorios.
-    </p>
+    <div class="row g-3">
+        @if (esInterno)
+        {
+            <div class="col-12 col-md-6 col-lg-4">
+                <a class="al-card al-card-body d-block text-decoration-none h-100 servicio" asp-controller="Clientes" asp-action="Index">
+                    <div class="icono"><i class="bi bi-people" aria-hidden="true"></i></div>
+                    <h3>Clientes</h3>
+                    <p class="texto-suave mb-0">Registre migrantes y bufetes, y consulte su historial de trámites.</p>
+                </a>
+            </div>
+        }
+        <div class="col-12 col-md-6 col-lg-4">
+            <a class="al-card al-card-body d-block text-decoration-none h-100 servicio" asp-controller="Tramites" asp-action="Index">
+                <div class="icono"><i class="bi bi-folder2-open" aria-hidden="true"></i></div>
+                <h3>@(esAliado ? "Mis trámites" : "Trámites")</h3>
+                <p class="texto-suave mb-0">@(esAliado ? "Vea los encargos asignados y actualice el estado de su etapa." : "Cree trámites, asigne aliados, cambie estados y registre envíos.")</p>
+            </a>
+        </div>
+        @if (esInterno)
+        {
+            <div class="col-12 col-md-6 col-lg-4">
+                <a class="al-card al-card-body d-block text-decoration-none h-100 servicio" asp-controller="Aliados" asp-action="Index">
+                    <div class="icono"><i class="bi bi-person-badge" aria-hidden="true"></i></div>
+                    <h3>Aliados</h3>
+                    <p class="texto-suave mb-0">Abogados y notarios que gestionan los documentos en cada país.</p>
+                </a>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <section class="hero" aria-labelledby="titulo-hero">
+        <div class="row align-items-center g-4 position-relative" style="z-index:1">
+            <div class="col-lg-7">
+                <p class="text-uppercase small fw-semibold mb-2" style="letter-spacing:.08em;color:#e9cf9c">Trámites legales y migratorios</p>
+                <h1 id="titulo-hero">Sus documentos del país de origen, sin viajar.</h1>
+                <p class="lead mt-3">Gestionamos partidas de nacimiento, antecedentes penales, actas notariales, apostillas y traducciones certificadas con abogados y notarios aliados en cada país.</p>
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <a class="btn btn-acento btn-lg" asp-controller="Seguimiento" asp-action="Index"><i class="bi bi-search me-2" aria-hidden="true"></i>Consultar mi trámite</a>
+                    <a class="btn btn-outline-light btn-lg" href="#servicios">Ver servicios</a>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="al-card al-card-body text-body">
+                    <h2 class="h5 mb-1">¿Ya tiene un código?</h2>
+                    <p class="texto-suave small">Lo recibió al registrar su trámite. Ejemplo: <span class="texto-mono">AL-2026-K7M2QX</span></p>
+                    <form asp-controller="Seguimiento" asp-action="Buscar" method="post" data-evitar-doble-envio>
+                        <label for="codigoRapido" class="form-label">Código de seguimiento</label>
+                        <div class="input-group">
+                            <input id="codigoRapido" name="Codigo" class="form-control input-codigo" placeholder="AL-2026-XXXXXX" autocomplete="off" required maxlength="20" data-mayusculas />
+                            <button class="btn btn-primary" type="submit" aria-label="Buscar trámite"><i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <a asp-controller="Home"
-       asp-action="Privacy"
-       class="btn btn-primary">
-        Ir a la siguiente página
-    </a>
-</div>
+    <section id="servicios" class="mt-5" aria-labelledby="titulo-servicios">
+        <h2 id="titulo-servicios" class="h3 mb-3">Servicios</h2>
+        <div class="row g-3">
+            @foreach (var s in new[]
+            {
+                ("bi-file-earmark-person", "Partidas de nacimiento", "Matrimonio y defunción también. Solicitadas en el registro civil del país de origen."),
+                ("bi-shield-check", "Antecedentes penales", "Constancias oficiales para procesos migratorios, laborales o de residencia."),
+                ("bi-pen", "Actas notariales", "Poderes, declaraciones juradas y autorizaciones firmadas por notarios aliados."),
+                ("bi-patch-check", "Apostillas", "Legalización internacional para que su documento sea válido en el país de destino."),
+                ("bi-translate", "Traducciones certificadas", "Inglés–español por traductores certificados, listas para presentar."),
+                ("bi-truck", "Envío internacional", "Despacho con número de guía y seguimiento hasta la entrega.")
+            })
+            {
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <article class="al-card al-card-body servicio">
+                        <div class="icono"><i class="bi @s.Item1" aria-hidden="true"></i></div>
+                        <h3>@s.Item2</h3>
+                        <p class="texto-suave mb-0">@s.Item3</p>
+                    </article>
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="mt-5" aria-labelledby="titulo-pasos">
+        <h2 id="titulo-pasos" class="h3 mb-3">¿Cómo funciona?</h2>
+        <div class="al-card al-card-body">
+            <ol class="pasos">
+                <li><strong>Solicite</strong><br /><span class="texto-suave">Nos indica el documento y el país.</span></li>
+                <li><strong>Gestionamos</strong><br /><span class="texto-suave">Un aliado local lo tramita.</span></li>
+                <li><strong>Apostillamos</strong><br /><span class="texto-suave">Si su trámite lo requiere.</span></li>
+                <li><strong>Enviamos</strong><br /><span class="texto-suave">Con guía para rastrearlo.</span></li>
+            </ol>
+        </div>
+    </section>
+}

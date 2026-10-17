@@ -1,0 +1,18 @@
+@model AsignarAliadoViewModel
+<form asp-action="AsignarAliado" method="post" data-evitar-doble-envio>
+    <input type="hidden" asp-for="TramiteId" />
+    <label asp-for="AliadoId" class="form-label">Aliado del país</label>
+    @if (Model.Aliados == null || !Model.Aliados.Any())
+    {
+        <p class="texto-suave small mb-0">No hay aliados activos en el país de este trámite. Registre uno en <a asp-controller="Aliados" asp-action="Index">Aliados</a>.</p>
+    }
+    else
+    {
+        <div class="d-flex flex-column flex-sm-row gap-2">
+            <select asp-for="AliadoId" asp-items="Model.Aliados" class="form-select" required>
+                <option value="">Seleccione…</option>
+            </select>
+            <button type="submit" class="btn btn-outline-primary text-nowrap"><i class="bi bi-person-check me-1" aria-hidden="true"></i>Asignar</button>
+        </div>
+    }
+</form>

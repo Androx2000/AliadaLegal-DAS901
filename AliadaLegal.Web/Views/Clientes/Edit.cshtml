@@ -1,0 +1,30 @@
+@model ClienteFormViewModel
+@{
+    ViewData["Title"] = "Editar cliente";
+}
+
+<div class="encabezado-pagina">
+    <div>
+        <nav class="migas" aria-label="Ruta"><a asp-action="Index">Clientes</a> / <a asp-action="Details" asp-route-id="@Model.Id">@Model.Nombre</a> / Editar</nav>
+        <h1>Editar cliente</h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-xl-9">
+        <div class="al-card al-card-body">
+            <form asp-action="Edit" method="post" novalidate data-evitar-doble-envio>
+                <input type="hidden" asp-for="Id" />
+                <partial name="_ClienteForm" model="Model" />
+                <div class="form-acciones">
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1" aria-hidden="true"></i>Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

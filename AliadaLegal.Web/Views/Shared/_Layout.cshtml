@@ -1,46 +1,111 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@{
+    var autenticado = User.Identity?.IsAuthenticated == true;
+    var esAdmin = User.IsInRole("Administrador");
+    var esAsesor = User.IsInRole("Asesor");
+    var esAliado = User.IsInRole("Aliado");
+    var esInterno = esAdmin || esAsesor;
+    var rol = esAdmin ? "Administrador" : esAsesor ? "Asesor" : esAliado ? "Aliado" : null;
+    var titulo = ViewData["Title"] as string;
+}
+<!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - AliadaLegal.Web</title>
+    <meta name="description" content="Aliada Legal: gestión de trámites legales y migratorios internacionales. Consulte el estado de su trámite con su código de seguimiento." />
+    <meta name="theme-color" content="#1f3a5f" />
+    <title>@(string.IsNullOrEmpty(titulo) ? "Aliada Legal" : $"{titulo} · Aliada Legal")</title>
+    <link rel="icon" type="image/svg+xml" href="~/images/logo.svg" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/AliadaLegal.Web.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Estilos", required: false)
 </head>
 <body>
+    <a class="saltar-contenido" href="#contenido">Saltar al contenido</a>
+
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">AliadaLegal.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-lg navbar-dark al-navbar" aria-label="Menú principal">
+            <div class="container">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/logo.svg" alt="" />
+                    <span>Aliada Legal</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
+                        aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menú">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+
+                <div class="collapse navbar-collapse" id="menuPrincipal">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-1">
+                        @if (esInterno)
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index" nav-activo><i class="bi bi-house me-1" aria-hidden="true"></i>Inicio</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Clientes" asp-action="Index" nav-activo><i class="bi bi-people me-1" aria-hidden="true"></i>Clientes</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Tramites" asp-action="Index" nav-activo><i class="bi bi-folder2-open me-1" aria-hidden="true"></i>Trámites</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Aliados" asp-action="Index" nav-activo><i class="bi bi-person-badge me-1" aria-hidden="true"></i>Aliados</a></li>
+                        }
+                        else if (esAliado)
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Tramites" asp-action="Index" nav-activo><i class="bi bi-folder2-open me-1" aria-hidden="true"></i>Mis trámites</a></li>
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index" nav-activo>Inicio</a></li>
+                            <li class="nav-item"><a class="nav-link" href="~/#servicios">Servicios</a></li>
+                        }
+                        <li class="nav-item"><a class="nav-link" asp-controller="Seguimiento" asp-action="Index" nav-activo><i class="bi bi-search me-1" aria-hidden="true"></i>Seguimiento</a></li>
+                    </ul>
+
+                    <ul class="navbar-nav">
+                        @if (autenticado)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-person-circle" aria-hidden="true"></i>
+                                    <span>@User.Identity!.Name</span>
+                                    @if (rol != null)
+                                    {
+                                        <span class="al-rol">@rol</span>
+                                    }
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                                            <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Cerrar sesión</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="btn btn-acento btn-sm px-3 mt-2 mt-lg-0" asp-controller="Account" asp-action="Login"><i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Ingresar</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - AliadaLegal.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <main id="contenido" role="main" class="container pb-4" tabindex="-1">
+        <partial name="_Mensajes" />
+        @RenderBody()
+    </main>
+
+    <footer class="al-footer">
+        <div class="container d-flex flex-column flex-md-row justify-content-between gap-2">
+            <span>&copy; @DateTime.Now.Year Aliada Legal · Trámites legales y migratorios internacionales</span>
+            <span>
+                <a asp-controller="Seguimiento" asp-action="Index">Consultar trámite</a>
+                <span class="mx-2" aria-hidden="true">·</span>
+                <a asp-controller="Home" asp-action="Privacy">Privacidad</a>
+            </span>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

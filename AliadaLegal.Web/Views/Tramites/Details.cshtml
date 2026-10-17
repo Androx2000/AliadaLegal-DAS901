@@ -1,0 +1,191 @@
+@model TramiteDetalleViewModel
+@{
+    ViewData["Title"] = $"Trámite {Model.Codigo}";
+    var esInterno = User.IsInRole("Administrador") || User.IsInRole("Asesor");
+    var hayAcciones = Model.PuedeAsignarAliado || Model.PuedeAvanzar || Model.PuedeRegistrarEnvio;
+}
+
+<div class="encabezado-pagina">
+    <div class="min-w-0">
+        <nav class="migas" aria-label="Ruta"><a asp-action="Index">Trámites</a> / Detalle</nav>
+        <h1 class="d-flex flex-wrap align-items-center gap-2">
+            <span class="codigo-seguimiento">@Model.Codigo</span>
+            <estado-badge estado="@Model.Estado" />
+        </h1>
+        <p class="texto-suave mb-0 mt-2">@Model.TipoDocumento · @Model.PaisDestino</p>
+    </div>
+    <div class="acciones no-imprimir">
+        <button type="button" class="btn btn-outline-primary" data-copiar="@Model.EnlacePublico"><i class="bi bi-link-45deg me-1" aria-hidden="true"></i>Copiar enlace para el cliente</button>
+        <button type="button" class="btn btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer me-1" aria-hidden="true"></i>Imprimir</button>
+    </div>
+</div>
+
+<div class="al-card al-card-body mb-3">
+    <div class="d-flex justify-content-between small mb-2">
+        <span class="fw-semibold">Progreso del trámite</span>
+        <span class="texto-suave">@Model.Progreso%</span>
+    </div>
+    <div class="al-progreso" role="progressbar" aria-label="Progreso del trámite" aria-valuenow="@Model.Progreso" aria-valuemin="0" aria-valuemax="100">
+        <span style="width:@(Model.Progreso)%"></span>
+    </div>
+    <p class="small texto-suave mb-0 mt-2">
+        Solicitado el @Model.FechaSolicitud.ToLocalTime().ToString("dd/MM/yyyy") ·
+        Última actualización @Model.UltimaActualizacion.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+        @if (Model.RequiereApostilla)
+        {
+            <span> · <i class="bi bi-patch-check" aria-hidden="true"></i> Requiere apostilla</span>
+        }
+    </p>
+</div>
+
+<div class="row g-3">
+    @* ---------- Columna principal ---------- *@
+    <div class="col-lg-8 order-2 order-lg-1">
+        <div class="al-card mb-3">
+            <div class="al-card-header"><h2>Datos del trámite</h2></div>
+            <div class="al-card-body">
+                <dl class="datos">
+                    <div>
+                        <dt>Cliente</dt>
+                        <dd>
+                            @if (esInterno)
+                            {
+                                <a asp-controller="Clientes" asp-action="Details" asp-route-id="@Model.ClienteId">@Model.Cliente</a>
+                            }
+                            else
+                            {
+                                @Model.Cliente
+                            }
+                        </dd>
+                    </div>
+                    <div><dt>Contacto del cliente</dt><dd>@Model.ClienteContacto</dd></div>
+                    <div><dt>Tipo de documento</dt><dd>@Model.TipoDocumento</dd></div>
+                    <div><dt>País de gestión</dt><dd>@Model.PaisDestino</dd></div>
+                    <div>
+                        <dt>Aliado asignado</dt>
+                        <dd>
+                            @if (string.IsNullOrEmpty(Model.Aliado))
+                            {
+                                <span class="texto-suave fst-italic">Sin asignar</span>
+                            }
+                            else
+                            {
+                                @Model.Aliado
+                                @if (!string.IsNullOrEmpty(Model.AliadoContacto))
+                                {
+                                    <div class="small texto-suave">@Model.AliadoContacto</div>
+                                }
+                            }
+                        </dd>
+                    </div>
+                    <div>
+                        <dt>Envío</dt>
+                        <dd>
+                            @if (string.IsNullOrEmpty(Model.EnvioGuia))
+                            {
+                                <span class="texto-suave fst-italic">Sin envío registrado</span>
+                            }
+                            else
+                            {
+                                <span>@Model.EnvioEmpresa · <span class="texto-mono">@Model.EnvioGuia</span></span>
+                                @if (Model.EnvioFecha.HasValue)
+                                {
+                                    <div class="small texto-suave">Despachado el @Model.EnvioFecha.Value.ToString("dd/MM/yyyy")</div>
+                                }
+                            }
+                        </dd>
+                    </div>
+                </dl>
+                @if (!string.IsNullOrWhiteSpace(Model.Observaciones))
+                {
+                    <hr />
+                    <h3 class="subtitulo-seccion mb-2">Observaciones internas</h3>
+                    <p class="mb-0" style="white-space:pre-line">@Model.Observaciones</p>
+                }
+            </div>
+        </div>
+
+        <div class="al-card">
+            <div class="al-card-header"><h2>Historial de estados</h2></div>
+            <div class="al-card-body">
+                @if (Model.Historial.Count == 0)
+                {
+                    <p class="texto-suave mb-0">Sin movimientos registrados.</p>
+                }
+                else
+                {
+                    <ol class="linea-tiempo">
+                        @for (var i = 0; i < Model.Historial.Count; i++)
+                        {
+                            var h = Model.Historial[i];
+                            var esUltimo = i == Model.Historial.Count - 1;
+                            <li class="@(esUltimo ? "actual" : "completado")">
+                                <span class="punto"><i class="bi bi-check" aria-hidden="true"></i></span>
+                                <div class="titulo"><estado-badge estado="@h.Estado" icono="false" /></div>
+                                <div class="meta mt-1">@h.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm") · @h.Responsable</div>
+                                @if (!string.IsNullOrWhiteSpace(h.Comentario))
+                                {
+                                    <div class="comentario">@h.Comentario</div>
+                                }
+                            </li>
+                        }
+                    </ol>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* ---------- Panel de acciones ---------- *@
+    <aside class="col-lg-4 order-1 order-lg-2 no-imprimir" aria-label="Acciones del trámite">
+        <div class="sticky-lateral d-grid gap-3">
+            @if (!hayAcciones)
+            {
+                <div class="al-card al-card-body">
+                    @if (Model.Estado == EstadoTramite.Entregado)
+                    {
+                        <p class="mb-0"><i class="bi bi-check-circle text-success me-1" aria-hidden="true"></i>Trámite entregado. No hay acciones pendientes.</p>
+                    }
+                    else
+                    {
+                        <p class="texto-suave mb-0">No hay acciones disponibles para su rol en este momento.</p>
+                    }
+                </div>
+            }
+
+            @if (Model.PuedeAsignarAliado)
+            {
+                <div class="al-card">
+                    <div class="al-card-header"><h2><i class="bi bi-person-badge me-1" aria-hidden="true"></i>@(string.IsNullOrEmpty(Model.Aliado) ? "Asignar aliado" : "Reasignar aliado")</h2></div>
+                    <div class="al-card-body"><partial name="_FormAsignarAliado" model="Model.Asignar" /></div>
+                </div>
+            }
+
+            @if (Model.PuedeAvanzar)
+            {
+                <div class="al-card">
+                    <div class="al-card-header"><h2><i class="bi bi-arrow-repeat me-1" aria-hidden="true"></i>Cambiar estado</h2></div>
+                    <div class="al-card-body"><partial name="_FormCambiarEstado" model="Model.CambiarEstado" /></div>
+                </div>
+            }
+
+            @if (Model.PuedeRegistrarEnvio)
+            {
+                <div class="al-card">
+                    <div class="al-card-header"><h2><i class="bi bi-truck me-1" aria-hidden="true"></i>@(string.IsNullOrEmpty(Model.EnvioGuia) ? "Registrar envío" : "Editar envío")</h2></div>
+                    <div class="al-card-body">
+                        @if (string.IsNullOrEmpty(Model.EnvioGuia))
+                        {
+                            <p class="small texto-suave">Al guardar el envío el trámite pasa a <strong>En tránsito</strong>.</p>
+                        }
+                        <partial name="_FormEnvio" model="Model.EnvioForm" />
+                    </div>
+                </div>
+            }
+
+            @if (esInterno && Model.EstadoSiguiente == EstadoTramite.Entregado)
+            {
+                <p class="small texto-suave mb-0">Cuando el cliente reciba el documento, use «Cambiar estado» para marcarlo como entregado.</p>
+            }
+        </div>
+    </aside>
+</div>

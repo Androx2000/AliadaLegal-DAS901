@@ -1,0 +1,53 @@
+@model ClienteFormViewModel
+@*
+    Campos compartidos por Create y Edit.
+    Los selects de enum usan Html.GetEnumSelectList: el texto sale de [Display(Name = "...")] en cada valor del enum.
+*@
+<div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+<section class="seccion-form">
+    <h2>Datos personales</h2>
+    <div class="row g-3">
+        <div class="col-12">
+            <label asp-for="Nombre" class="form-label">Nombre completo<span class="requerido" aria-hidden="true">*</span></label>
+            <input asp-for="Nombre" class="form-control" autocomplete="name" />
+            <span asp-validation-for="Nombre"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="TipoCliente" class="form-label">Tipo de cliente<span class="requerido" aria-hidden="true">*</span></label>
+            <select asp-for="TipoCliente" asp-items="Html.GetEnumSelectList<TipoCliente>()" class="form-select">
+                <option value="">Seleccione…</option>
+            </select>
+            <span asp-validation-for="TipoCliente"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="PaisOrigenId" class="form-label">País de origen<span class="requerido" aria-hidden="true">*</span></label>
+            <select asp-for="PaisOrigenId" asp-items="Model.Paises" class="form-select">
+                <option value="">Seleccione…</option>
+            </select>
+            <span asp-validation-for="PaisOrigenId"></span>
+        </div>
+    </div>
+</section>
+
+<section class="seccion-form">
+    <h2>Contacto</h2>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="Correo" class="form-label">Correo electrónico<span class="requerido" aria-hidden="true">*</span></label>
+            <input asp-for="Correo" type="email" class="form-control" autocomplete="email" placeholder="nombre@correo.com" />
+            <span asp-validation-for="Correo"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Telefono" class="form-label">Teléfono / WhatsApp<span class="requerido" aria-hidden="true">*</span></label>
+            <input asp-for="Telefono" type="tel" class="form-control" autocomplete="tel" placeholder="+1 555 123 4567" />
+            <div class="form-text">Incluya el código de país.</div>
+            <span asp-validation-for="Telefono"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="CanalContacto" class="form-label">Canal de contacto preferido</label>
+            <select asp-for="CanalContacto" asp-items="Html.GetEnumSelectList<CanalContacto>()" class="form-select"></select>
+            <span asp-validation-for="CanalContacto"></span>
+        </div>
+    </div>
+</section>

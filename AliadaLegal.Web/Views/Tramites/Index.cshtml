@@ -1,0 +1,104 @@
+@model TramiteListaViewModel
+@{
+    ViewData["Title"] = Model.EsAliado ? "Mis trámites" : "Trámites";
+    var hayFiltro = !string.IsNullOrWhiteSpace(Model.Texto) || Model.Estado.HasValue;
+}
+
+<div class="encabezado-pagina">
+    <div>
+        <h1>@ViewData["Title"]</h1>
+        <p class="texto-suave mb-0">@(Model.EsAliado ? "Trámites asignados a usted. Actualice el estado de su etapa desde el detalle." : "Todas las solicitudes de documentos y su estado actual.")</p>
+    </div>
+    @if (!Model.EsAliado)
+    {
+        <div class="acciones">
+            <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Nuevo trámite</a>
+        </div>
+    }
+</div>
+
+<div class="al-card">
+    <div class="al-card-body border-bottom">
+        <form asp-action="Index" method="get" role="search" class="barra-filtros">
+            <div>
+                <label for="texto" class="form-label small">Buscar</label>
+                <input id="texto" name="texto" value="@Model.Texto" class="form-control" placeholder="Código, cliente o documento" />
+            </div>
+            <div>
+                <label for="estado" class="form-label small">Estado</label>
+                <select id="estado" name="estado" class="form-select" data-autoenviar>
+                    <option value="">Todos los estados</option>
+                    @foreach (var e in EstadoTramiteUi.Todos())
+                    {
+                        <option value="@e.Valor" selected="@(Model.Estado == e.Valor)">@e.Texto</option>
+                    }
+                </select>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-outline-primary flex-fill"><i class="bi bi-funnel me-1" aria-hidden="true"></i>Filtrar</button>
+                @if (hayFiltro)
+                {
+                    <a asp-action="Index" class="btn btn-link">Limpiar</a>
+                }
+            </div>
+        </form>
+    </div>
+
+    @if (Model.Tramites.Count == 0)
+    {
+        <partial name="_EstadoVacio" model="@(("bi-folder2-open", hayFiltro ? "Sin resultados" : "No hay trámites", hayFiltro ? "Pruebe con otro texto o estado." : (Model.EsAliado ? "Todavía no tiene trámites asignados." : "Cree el primer trámite desde aquí o desde la ficha de un cliente.")))" />
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table al-tabla al-tabla-movil">
+                <caption class="visually-hidden">Lista de trámites</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Código</th>
+                        <th scope="col">Cliente</th>
+                        <th scope="col">Documento</th>
+                        <th scope="col">País</th>
+                        <th scope="col">Estado</th>
+                        @if (!Model.EsAliado)
+                        {
+                            <th scope="col">Aliado</th>
+                        }
+                        <th scope="col">Solicitado</th>
+                        <th scope="col"><span class="visually-hidden">Acciones</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model.Tramites)
+                    {
+                        <tr>
+                            <td data-etiqueta="Código"><a asp-action="Details" asp-route-id="@t.Id" class="texto-mono fw-semibold text-decoration-none">@t.Codigo</a></td>
+                            <td data-etiqueta="Cliente">@t.Cliente</td>
+                            <td data-etiqueta="Documento">@t.TipoDocumento</td>
+                            <td data-etiqueta="País">@t.PaisDestino</td>
+                            <td data-etiqueta="Estado"><estado-badge estado="@t.Estado" /></td>
+                            @if (!Model.EsAliado)
+                            {
+                                <td data-etiqueta="Aliado">
+                                    @if (string.IsNullOrEmpty(t.Aliado))
+                                    {
+                                        <span class="texto-suave fst-italic">Sin asignar</span>
+                                    }
+                                    else
+                                    {
+                                        @t.Aliado
+                                    }
+                                </td>
+                            }
+                            <td data-etiqueta="Solicitado">@t.FechaSolicitud.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                            <td class="celda-acciones text-end">
+                                <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@t.Id">Abrir<span class="visually-hidden"> @t.Codigo</span></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="al-card-body py-2 small texto-suave border-top">@Model.Tramites.Count trámite(s)</div>
+    }
+</div>
