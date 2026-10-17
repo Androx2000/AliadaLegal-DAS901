@@ -20,6 +20,8 @@ public class AppDbContext : DbContext
     public DbSet<Tramite> Tramites => Set<Tramite>();
     public DbSet<Aliado> Aliados => Set<Aliado>();
     public DbSet<Envio> Envios => Set<Envio>();
+    public DbSet<HistorialEstado> HistorialEstados
+    => Set<HistorialEstado>();
 
     protected override void OnModelCreating(
         ModelBuilder modelBuilder)
@@ -57,12 +59,11 @@ public class AppDbContext : DbContext
             .HasForeignKey(t => t.ClienteId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Un país puede tener varios trámites.
         modelBuilder.Entity<Tramite>()
-            .HasOne(t => t.Pais)
-            .WithMany(p => p.Tramites)
-            .HasForeignKey(t => t.PaisId)
-            .OnDelete(DeleteBehavior.Restrict);
+    .HasOne(t => t.PaisDestino)
+    .WithMany(p => p.Tramites)
+    .HasForeignKey(t => t.PaisDestinoId)
+    .OnDelete(DeleteBehavior.Restrict);
 
         // Un documento puede aparecer en varios trámites.
         modelBuilder.Entity<Tramite>()
@@ -102,5 +103,16 @@ public class AppDbContext : DbContext
             .WithMany()
             .HasForeignKey(c => c.PaisOrigenId)
             .OnDelete(DeleteBehavior.Restrict);    
+
+            modelBuilder.Entity<HistorialEstado>()
+    .HasOne(h => h.Tramite)
+    .WithMany(t => t.Historial)
+    .HasForeignKey(h => h.TramiteId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+    modelBuilder.Entity<Tramite>()
+    .HasIndex(t => t.CodigoSeguimiento)
+    .IsUnique();
+            
     }
 }
