@@ -1,0 +1,85 @@
+@model AliadoListaViewModel
+@{
+    ViewData["Title"] = "Aliados";
+    var esAdmin = User.IsInRole("Administrador");
+}
+
+<div class="encabezado-pagina">
+    <div>
+        <h1>Aliados</h1>
+        <p class="texto-suave mb-0">Abogados y notarios que gestionan los documentos en cada país.</p>
+    </div>
+    @if (esAdmin)
+    {
+        <div class="acciones">
+            <a class="btn btn-primary" asp-action="Create"><i class="bi bi-person-plus me-1" aria-hidden="true"></i>Nuevo aliado</a>
+        </div>
+    }
+</div>
+
+@if (!esAdmin)
+{
+    <div class="alert alert-info d-flex gap-2">
+        <i class="bi bi-info-circle" aria-hidden="true"></i>
+        <div>Vista de solo lectura. Solo el rol Administrador puede registrar o editar aliados.</div>
+    </div>
+}
+
+<div class="al-card">
+    @if (Model.Aliados.Count == 0)
+    {
+        <partial name="_EstadoVacio" model="@(("bi-person-badge", "Aún no hay aliados", "Registre abogados o notarios para poder asignarles trámites."))" />
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table al-tabla al-tabla-movil">
+                <caption class="visually-hidden">Lista de aliados</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">País asignado</th>
+                        <th scope="col">Contacto</th>
+                        <th scope="col">Estado</th>
+                        @if (esAdmin)
+                        {
+                            <th scope="col"><span class="visually-hidden">Acciones</span></th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in Model.Aliados)
+                    {
+                        <tr class="@(a.Activo ? "" : "text-muted")">
+                            <td data-etiqueta="Nombre" class="fw-semibold">@a.Nombre</td>
+                            <td data-etiqueta="Tipo">@a.TipoAliado</td>
+                            <td data-etiqueta="País">@a.PaisAsignado</td>
+                            <td data-etiqueta="Contacto">
+                                <div>@a.Correo</div>
+                                <div class="texto-suave small">@a.Telefono</div>
+                            </td>
+                            <td data-etiqueta="Estado">
+                                @if (a.Activo)
+                                {
+                                    <span class="estado-badge estado-entregado"><i class="bi bi-check-circle" aria-hidden="true"></i>Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="estado-badge estado-solicitado"><i class="bi bi-pause-circle" aria-hidden="true"></i>Inactivo</span>
+                                }
+                            </td>
+                            @if (esAdmin)
+                            {
+                                <td class="celda-acciones text-end">
+                                    <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@a.Id"><i class="bi bi-pencil me-1" aria-hidden="true"></i>Editar<span class="visually-hidden"> @a.Nombre</span></a>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="al-card-body py-2 small texto-suave border-top">@Model.Aliados.Count aliado(s)</div>
+    }
+</div>

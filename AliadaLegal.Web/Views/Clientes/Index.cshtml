@@ -1,0 +1,79 @@
+@model ClienteListaViewModel
+@{
+    ViewData["Title"] = "Clientes";
+}
+
+<div class="encabezado-pagina">
+    <div>
+        <h1>Clientes</h1>
+        <p class="texto-suave mb-0">Migrantes y bufetes que solicitan trámites.</p>
+    </div>
+    <div class="acciones">
+        <a class="btn btn-primary" asp-action="Create"><i class="bi bi-person-plus me-1" aria-hidden="true"></i>Nuevo cliente</a>
+    </div>
+</div>
+
+<div class="al-card">
+    <div class="al-card-body border-bottom">
+        <form asp-action="Index" method="get" role="search" class="d-flex flex-column flex-sm-row gap-2">
+            <label for="texto" class="visually-hidden">Buscar cliente</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="bi bi-search" aria-hidden="true"></i></span>
+                <input id="texto" name="texto" value="@Model.Texto" class="form-control" placeholder="Buscar por nombre, correo o teléfono" />
+            </div>
+            <button type="submit" class="btn btn-outline-primary">Buscar</button>
+            @if (!string.IsNullOrWhiteSpace(Model.Texto))
+            {
+                <a asp-action="Index" class="btn btn-link">Limpiar</a>
+            }
+        </form>
+    </div>
+
+    @if (Model.Clientes.Count == 0)
+    {
+        <partial name="_EstadoVacio" model="@(("bi-people", string.IsNullOrWhiteSpace(Model.Texto) ? "Aún no hay clientes" : "Sin resultados", string.IsNullOrWhiteSpace(Model.Texto) ? "Registre el primer cliente para crear trámites." : $"No hay clientes que coincidan con «{Model.Texto}»."))" />
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table al-tabla al-tabla-movil">
+                <caption class="visually-hidden">Lista de clientes</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Contacto</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">País de origen</th>
+                        <th scope="col" class="text-center">Trámites</th>
+                        <th scope="col"><span class="visually-hidden">Acciones</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Model.Clientes)
+                    {
+                        <tr>
+                            <td data-etiqueta="Nombre" class="fw-semibold">
+                                <a asp-action="Details" asp-route-id="@c.Id" class="text-decoration-none">@c.Nombre</a>
+                            </td>
+                            <td data-etiqueta="Contacto">
+                                <div>@c.Correo</div>
+                                <div class="texto-suave small">@c.Telefono</div>
+                            </td>
+                            <td data-etiqueta="Tipo">@c.TipoCliente</td>
+                            <td data-etiqueta="País">@c.PaisOrigen</td>
+                            <td data-etiqueta="Trámites" class="text-md-center">@c.TotalTramites</td>
+                            <td class="celda-acciones text-end">
+                                <div class="btn-group btn-group-sm">
+                                    <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@c.Id" title="Ver detalle"><i class="bi bi-eye" aria-hidden="true"></i><span class="visually-hidden">Ver @c.Nombre</span></a>
+                                    <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@c.Id" title="Editar"><i class="bi bi-pencil" aria-hidden="true"></i><span class="visually-hidden">Editar @c.Nombre</span></a>
+                                    <a class="btn btn-outline-primary" asp-controller="Tramites" asp-action="Create" asp-route-clienteId="@c.Id" title="Nuevo trámite"><i class="bi bi-plus-lg" aria-hidden="true"></i><span class="visually-hidden">Nuevo trámite para @c.Nombre</span></a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="al-card-body py-2 small texto-suave border-top">@Model.Clientes.Count cliente(s)</div>
+    }
+</div>

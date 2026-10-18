@@ -1,0 +1,11 @@
+@model CambiarEstadoViewModel
+<form asp-action="CambiarEstado" method="post" data-evitar-doble-envio>
+    <input type="hidden" asp-for="TramiteId" />
+    <input type="hidden" asp-for="NuevoEstado" />
+    <p class="mb-2">Siguiente estado: <estado-badge estado="@Model.NuevoEstado" /></p>
+    <label asp-for="Comentario" class="form-label">Comentario <span class="texto-suave fw-normal">(opcional)</span></label>
+    <textarea asp-for="Comentario" class="form-control mb-2" rows="2" maxlength="500" placeholder="Ej.: Partida emitida por el registro civil."></textarea>
+    <button type="submit" class="btn btn-primary w-100" data-confirmar="¿Confirma el cambio a «@EstadoTramiteUi.Etiqueta(Model.NuevoEstado)»?">
+        <i class="bi bi-arrow-right-circle me-1" aria-hidden="true"></i>Marcar como «@EstadoTramiteUi.Etiqueta(Model.NuevoEstado)»
+    </button>
+</form>

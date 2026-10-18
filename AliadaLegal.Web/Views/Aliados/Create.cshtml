@@ -1,0 +1,30 @@
+@model AliadoFormViewModel
+@{
+    ViewData["Title"] = "Nuevo aliado";
+}
+
+<div class="encabezado-pagina">
+    <div>
+        <nav class="migas" aria-label="Ruta"><a asp-action="Index">Aliados</a> / Nuevo</nav>
+        <h1>Nuevo aliado</h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-xl-9">
+        <div class="al-card al-card-body">
+            <form asp-action="Create" method="post" novalidate data-evitar-doble-envio>
+                <partial name="_AliadoForm" model="Model" />
+                <input type="hidden" asp-for="Activo" value="true" />
+                <div class="form-acciones">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1" aria-hidden="true"></i>Guardar aliado</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

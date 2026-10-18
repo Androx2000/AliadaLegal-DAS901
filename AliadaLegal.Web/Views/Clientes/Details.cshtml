@@ -1,0 +1,75 @@
+@model ClienteDetalleViewModel
+@{
+    ViewData["Title"] = Model.Nombre;
+}
+
+<div class="encabezado-pagina">
+    <div>
+        <nav class="migas" aria-label="Ruta"><a asp-action="Index">Clientes</a> / Detalle</nav>
+        <h1>@Model.Nombre</h1>
+    </div>
+    <div class="acciones">
+        <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@Model.Id"><i class="bi bi-pencil me-1" aria-hidden="true"></i>Editar</a>
+        <a class="btn btn-primary" asp-controller="Tramites" asp-action="Create" asp-route-clienteId="@Model.Id"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Nuevo trámite</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="al-card sticky-lateral">
+            <div class="al-card-header"><h2>Datos del cliente</h2></div>
+            <div class="al-card-body">
+                <dl class="datos" style="grid-template-columns:1fr">
+                    <div><dt>Tipo</dt><dd>@Model.TipoCliente</dd></div>
+                    <div><dt>País de origen</dt><dd>@Model.PaisOrigen</dd></div>
+                    <div><dt>Correo</dt><dd><a href="mailto:@Model.Correo">@Model.Correo</a></dd></div>
+                    <div><dt>Teléfono</dt><dd><a href="tel:@Model.Telefono">@Model.Telefono</a></dd></div>
+                    <div><dt>Canal preferido</dt><dd>@Model.CanalContacto</dd></div>
+                    <div><dt>Registrado</dt><dd>@Model.FechaRegistro.ToLocalTime().ToString("dd/MM/yyyy")</dd></div>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="al-card">
+            <div class="al-card-header">
+                <h2>Historial de trámites</h2>
+                <span class="badge rounded-pill text-bg-light border">@Model.Tramites.Count</span>
+            </div>
+            @if (Model.Tramites.Count == 0)
+            {
+                <partial name="_EstadoVacio" model="@(("bi-folder2", "Sin trámites", "Este cliente todavía no tiene trámites registrados."))" />
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table al-tabla al-tabla-movil">
+                        <caption class="visually-hidden">Trámites del cliente</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Código</th>
+                                <th scope="col">Documento</th>
+                                <th scope="col">País</th>
+                                <th scope="col">Estado</th>
+                                <th scope="col">Solicitado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var t in Model.Tramites)
+                            {
+                                <tr>
+                                    <td data-etiqueta="Código"><a asp-controller="Tramites" asp-action="Details" asp-route-id="@t.Id" class="texto-mono fw-semibold text-decoration-none">@t.Codigo</a></td>
+                                    <td data-etiqueta="Documento">@t.TipoDocumento</td>
+                                    <td data-etiqueta="País">@t.PaisDestino</td>
+                                    <td data-etiqueta="Estado"><estado-badge estado="@t.Estado" /></td>
+                                    <td data-etiqueta="Solicitado">@t.FechaSolicitud.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
