@@ -16,12 +16,8 @@ public static class DbSeeder
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<Usuario>>();
 
-        // Si el equipo ya generó migraciones se aplican; si no, se crea el esquema directamente.
-        if (db.Database.GetMigrations().Any())
+          // Aplica las migraciones de EF Core (la migración inicial ya está en el proyecto).
             await db.Database.MigrateAsync();
-        else
-            await db.Database.EnsureCreatedAsync();
-
         if (await db.Roles.AnyAsync()) return;
 
         // ---- Roles ----
