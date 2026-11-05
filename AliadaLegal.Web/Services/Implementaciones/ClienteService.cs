@@ -22,6 +22,7 @@ public class ClienteService : IClienteService
     {
         cliente.Correo = cliente.Correo.Trim().ToLowerInvariant();
         cliente.Nombre = cliente.Nombre.Trim();
+        cliente.Telefono = cliente.Telefono.Trim();
 
         if (await _catalogos.ObtenerPaisAsync(cliente.PaisOrigenId) == null)
             return ResultadoOperacion<Cliente>.Fallo("El país de origen seleccionado no existe.");
@@ -42,6 +43,9 @@ public class ClienteService : IClienteService
             return ResultadoOperacion.Fallo("El cliente no existe.");
 
         var correo = datos.Correo.Trim().ToLowerInvariant();
+        if (await _catalogos.ObtenerPaisAsync(datos.PaisOrigenId) == null)
+            return ResultadoOperacion.Fallo("El país de origen seleccionado no existe.");
+
         if (await _clientes.ExisteCorreoAsync(correo, datos.Id))
             return ResultadoOperacion.Fallo("Otro cliente ya usa ese correo electrónico.");
 
@@ -52,6 +56,21 @@ public class ClienteService : IClienteService
         existente.TipoCliente = datos.TipoCliente;
         existente.PaisOrigenId = datos.PaisOrigenId;
 
+        await _clientes.GuardarCambiosAsync();
+        return ResultadoOperacion.Ok();
+    }
+
+    public async Task<ResultadoOperacion> EliminarAsync(int id)
+    {
+        var cliente = await _clientes.ObtenerPorIdAsync(id);
+        if (cliente == null)
+            return ResultadoOperacion.Fallo("El cliente no existe o ya fue eliminado.");
+
+        // Regla de negocio: un cliente con trámites conserva su historial (FK con DeleteBehavior.Restrict).
+        if (await _clientes.TieneTramitesAsync(id))
+            return ResultadoOperacion.Fallo("No se puede eliminar el cliente porque tiene trámites registrados.");
+
+        _clientes.Eliminar(cliente);
         await _clientes.GuardarCambiosAsync();
         return ResultadoOperacion.Ok();
     }

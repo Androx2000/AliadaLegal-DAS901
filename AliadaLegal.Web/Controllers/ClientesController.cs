@@ -103,6 +103,32 @@ public class ClientesController : Controller
         return RedirectToAction(nameof(Details), new { id = vm.Id });
     }
 
+    // GET /Clientes/Delete/5  (pantalla de confirmación)
+    [HttpGet]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var cliente = await _clientes.ObtenerAsync(id);
+        if (cliente == null) return NotFound();
+
+        return View(cliente.ADetalle());
+    }
+
+    // POST /Clientes/Delete/5
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var resultado = await _clientes.EliminarAsync(id);
+        if (!resultado.Exito)
+        {
+            TempData["Error"] = resultado.Error;
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        TempData["Exito"] = "Cliente eliminado correctamente.";
+        return RedirectToAction(nameof(Index));
+    }
+
     private async Task CargarPaisesAsync(ClienteFormViewModel vm)
     {
         var paises = await _catalogos.ListarPaisesAsync();
