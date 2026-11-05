@@ -8,5 +8,7 @@ public interface IClienteRepository
     Task<Cliente?> ObtenerPorIdAsync(int id);
     Task<bool> ExisteCorreoAsync(string correo, int? excluirId);
     Task AgregarAsync(Cliente cliente);
+    Task<bool> TieneTramitesAsync(int clienteId);
+    void Eliminar(Cliente cliente);
     Task GuardarCambiosAsync();
 }
