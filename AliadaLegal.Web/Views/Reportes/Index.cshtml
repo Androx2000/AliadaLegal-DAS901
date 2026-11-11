@@ -1,0 +1,74 @@
+@model ReportePaisViewModel
+@{
+    ViewData["Title"] = "Reportes";
+}
+
+<div class="encabezado-pagina">
+    <div>
+        <h1>Reportes</h1>
+        <p class="texto-suave mb-0">Trámites por país de destino y tiempo promedio de entrega.</p>
+    </div>
+</div>
+
+<div class="al-card mb-3">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-12 col-md-4">
+            <label for="desde" class="form-label">Solicitados desde</label>
+            <input type="date" id="desde" name="desde" class="form-control" value="@Model.Desde?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-12 col-md-4">
+            <label for="hasta" class="form-label">Solicitados hasta</label>
+            <input type="date" id="hasta" name="hasta" class="form-control" value="@Model.Hasta?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-12 col-md-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-funnel me-1" aria-hidden="true"></i>Filtrar</button>
+            <a class="btn btn-outline-secondary" asp-action="Index">Limpiar</a>
+        </div>
+    </form>
+</div>
+
+<div class="al-card">
+    @if (Model.Filas.Count == 0)
+    {
+        <partial name="_EstadoVacio" model="@(("bi-bar-chart-line", "No hay trámites en este rango", "Cambie las fechas o limpie el filtro para ver todos los trámites."))" />
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table al-tabla al-tabla-movil">
+                <caption class="visually-hidden">Trámites por país de destino</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">País de destino</th>
+                        <th scope="col" class="text-md-center">Total</th>
+                        <th scope="col" class="text-md-center">Activos</th>
+                        <th scope="col" class="text-md-center">Entregados</th>
+                        <th scope="col" class="text-md-center">Días promedio de entrega</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var f in Model.Filas)
+                    {
+                        <tr>
+                            <td data-etiqueta="País" class="fw-semibold">@f.Pais</td>
+                            <td data-etiqueta="Total" class="text-md-center">@f.Total</td>
+                            <td data-etiqueta="Activos" class="text-md-center">@f.Activos</td>
+                            <td data-etiqueta="Entregados" class="text-md-center">@f.Entregados</td>
+                            <td data-etiqueta="Días promedio" class="text-md-center">@(f.DiasPromedioEntrega?.ToString("0.0") ?? "—")</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="fw-semibold">
+                        <td>Total</td>
+                        <td class="text-md-center">@Model.Total</td>
+                        <td class="text-md-center">@Model.Activos</td>
+                        <td class="text-md-center">@Model.Entregados</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <p class="texto-suave small mt-2 mb-0">El promedio solo cuenta trámites ya entregados; "—" significa que aún no hay entregas en ese país.</p>
+    }
+</div>
