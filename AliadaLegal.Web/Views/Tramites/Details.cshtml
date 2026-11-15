@@ -15,6 +15,14 @@
         <p class="texto-suave mb-0 mt-2">@Model.TipoDocumento · @Model.PaisDestino</p>
     </div>
     <div class="acciones no-imprimir">
+        @if (esInterno && Model.Estado == EstadoTramite.Solicitado)
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary"><i class="bi bi-pencil me-1" aria-hidden="true"></i>Editar</a>
+            @if (string.IsNullOrEmpty(Model.Aliado))
+            {
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger"><i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar</a>
+            }
+        }
         <button type="button" class="btn btn-outline-primary" data-copiar="@Model.EnlacePublico"><i class="bi bi-link-45deg me-1" aria-hidden="true"></i>Copiar enlace para el cliente</button>
         <button type="button" class="btn btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer me-1" aria-hidden="true"></i>Imprimir</button>
     </div>

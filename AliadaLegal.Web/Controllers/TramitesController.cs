@@ -92,6 +92,93 @@ public class TramitesController : Controller
         return RedirectToAction(nameof(Details), new { id = resultado.Valor!.Id });
     }
 
+    // ---------------------------------------------------------------- Editar
+    [HttpGet]
+    [Authorize(Roles = Roles.AdministradorOAsesor)]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var tramite = await _tramites.ObtenerAsync(id, null);
+        if (tramite == null) return NotFound();
+
+        if (tramite.Estado != EstadoTramite.Solicitado)
+        {
+            TempData["Error"] = "Solo se puede editar un trámite que aún está en estado «Solicitado».";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        var vm = new TramiteFormViewModel
+        {
+            Id = tramite.Id,
+            Codigo = tramite.CodigoSeguimiento,
+            ClienteId = tramite.ClienteId,
+            TipoDocumentoId = tramite.TipoDocumentoId,
+            PaisDestinoId = tramite.PaisDestinoId,
+            Observaciones = tramite.Observaciones
+        };
+        await CargarListasAsync(vm);
+        return View(vm);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = Roles.AdministradorOAsesor)]
+    public async Task<IActionResult> Edit(int id, TramiteFormViewModel vm)
+    {
+        if (id != vm.Id) return BadRequest();
+
+        if (!ModelState.IsValid)
+        {
+            await CargarListasAsync(vm);
+            return View(vm);
+        }
+
+        var resultado = await _tramites.ActualizarAsync(
+            id, vm.ClienteId!.Value, vm.TipoDocumentoId!.Value, vm.PaisDestinoId!.Value, vm.Observaciones);
+
+        if (!resultado.Exito)
+        {
+            ModelState.AddModelError(string.Empty, resultado.Error!);
+            await CargarListasAsync(vm);
+            return View(vm);
+        }
+
+        TempData["Exito"] = "Trámite actualizado.";
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+    // -------------------------------------------------------------- Eliminar
+    [HttpGet]
+    [Authorize(Roles = Roles.AdministradorOAsesor)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var tramite = await _tramites.ObtenerAsync(id, null);
+        if (tramite == null) return NotFound();
+
+        if (tramite.Estado != EstadoTramite.Solicitado || tramite.AliadoId != null)
+        {
+            TempData["Error"] = "Solo se puede eliminar un trámite en estado «Solicitado» y sin aliado asignado.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        return View(tramite.AItem());
+    }
+
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = Roles.AdministradorOAsesor)]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var resultado = await _tramites.EliminarAsync(id);
+        if (!resultado.Exito)
+        {
+            TempData["Error"] = resultado.Error;
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        TempData["Exito"] = "Trámite eliminado.";
+        return RedirectToAction(nameof(Index));
+    }
+
     // ------------------------------------------------------- Asignar aliado (RF03)
     [HttpPost]
     [ValidateAntiForgeryToken]
