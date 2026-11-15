@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using AliadaLegal.Web.Dtos;
 using AliadaLegal.Web.Helpers;
 using AliadaLegal.Web.Models;
@@ -8,24 +7,27 @@ namespace AliadaLegal.Web.Services;
 
 public class TramiteService : ITramiteService
 {
-    // Sin 0/O ni 1/I para evitar errores al dictar el código por teléfono o WhatsApp.
-    private const string AlfabetoCodigo = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-
     private readonly ITramiteRepository _tramites;
     private readonly IClienteRepository _clientes;
     private readonly IAliadoRepository _aliados;
     private readonly ICatalogoRepository _catalogos;
+    private readonly ICodigoSeguimientoGenerador _codigos;
+    private readonly TimeProvider _reloj;
 
     public TramiteService(
         ITramiteRepository tramites,
         IClienteRepository clientes,
         IAliadoRepository aliados,
-        ICatalogoRepository catalogos)
+        ICatalogoRepository catalogos,
+        ICodigoSeguimientoGenerador codigos,
+        TimeProvider reloj)
     {
         _tramites = tramites;
         _clientes = clientes;
         _aliados = aliados;
         _catalogos = catalogos;
+        _codigos = codigos;
+        _reloj = reloj;
     }
 
     // ---------------------------------------------------------------- RF02
@@ -44,7 +46,7 @@ public class TramiteService : ITramiteService
         if (pais == null)
             return ResultadoOperacion<Tramite>.Fallo("El país seleccionado no existe.");
 
-        var ahora = DateTime.UtcNow;
+        var ahora = _reloj.GetUtcNow().UtcDateTime;
         var tramite = new Tramite
         {
             CodigoSeguimiento = await GenerarCodigoUnicoAsync(),
@@ -154,7 +156,9 @@ public class TramiteService : ITramiteService
         if (aliadoIdRestriccion.HasValue && tramite.AliadoId != aliadoIdRestriccion)
             return ResultadoOperacion.Fallo("Solo puede actualizar los trámites que tiene asignados.");
 
-        if (!tramite.PuedeCambiarA(nuevo))
+        // La regla de avance vive en un solo lugar (EstadoTramiteFlujo) y respeta la apostilla (OCP).
+        var requiereApostilla = tramite.TipoDocumento?.RequiereApostilla ?? false;
+        if (!EstadoTramiteFlujo.EsTransicionValida(tramite.Estado, nuevo, requiereApostilla))
             return ResultadoOperacion.Fallo(
                 $"No se puede pasar de «{tramite.Estado.NombreMostrable()}» a «{nuevo.NombreMostrable()}». " +
                 "Los estados avanzan en orden.");
@@ -181,7 +185,9 @@ public class TramiteService : ITramiteService
         if (tramite == null)
             return ResultadoOperacion.Fallo("El trámite no existe.");
 
-        var listoParaEnviar = tramite.Estado == EstadoTramite.EnTransito || tramite.PuedeCambiarA(EstadoTramite.EnTransito);
+        var requiereApostilla = tramite.TipoDocumento?.RequiereApostilla ?? false;
+        var listoParaEnviar = tramite.Estado == EstadoTramite.EnTransito ||
+            EstadoTramiteFlujo.EsTransicionValida(tramite.Estado, EstadoTramite.EnTransito, requiereApostilla);
         if (!listoParaEnviar)
             return ResultadoOperacion.Fallo("El envío se registra cuando el documento ya fue obtenido (y apostillado, si aplica).");
 
@@ -224,51 +230,6 @@ public class TramiteService : ITramiteService
         return tramite;
     }
 
-    // ---------------------------------------------------------------- RF06
-    public async Task<TramiteSeguimientoDto?> ConsultarSeguimientoAsync(string codigo)
-    {
-        if (string.IsNullOrWhiteSpace(codigo)) return null;
-
-        var tramite = await _tramites.ObtenerPorCodigoAsync(codigo.Trim().ToUpperInvariant());
-        if (tramite == null) return null;
-
-        var requiereApostilla = tramite.TipoDocumento?.RequiereApostilla ?? false;
-        var recorrido = EstadoTramiteFlujo.Recorrido(requiereApostilla);
-        var fechasPorEstado = tramite.Historial
-            .GroupBy(h => h.EstadoNuevo)
-            .ToDictionary(g => g.Key, g => g.Min(h => h.Fecha));
-
-        var dto = new TramiteSeguimientoDto
-        {
-            CodigoSeguimiento = tramite.CodigoSeguimiento,
-            TipoDocumento = tramite.TipoDocumento?.Nombre ?? string.Empty,
-            PaisDestino = tramite.PaisDestino?.Nombre ?? string.Empty,
-            Estado = tramite.Estado.NombreMostrable(),
-            EstadoClave = tramite.Estado.ClaveCss(),
-            Progreso = EstadoTramiteFlujo.Progreso(tramite.Estado, requiereApostilla),
-            FechaSolicitud = tramite.FechaSolicitud,
-            UltimaActualizacion = tramite.FechaUltimaActualizacion,
-            EmpresaEnvio = tramite.Envio?.EmpresaEnvio,
-            NumeroGuia = tramite.Envio?.NumeroGuia
-        };
-
-        var indiceActual = recorrido.ToList().IndexOf(tramite.Estado);
-        for (var i = 0; i < recorrido.Count; i++)
-        {
-            var estado = recorrido[i];
-            dto.LineaDeTiempo.Add(new HitoSeguimientoDto
-            {
-                Estado = estado.NombreMostrable(),
-                EstadoClave = estado.ClaveCss(),
-                Fecha = fechasPorEstado.TryGetValue(estado, out var fecha) ? fecha : null,
-                Completado = i <= indiceActual,
-                EsActual = i == indiceActual
-            });
-        }
-
-        return dto;
-    }
-
     public async Task<ResumenTramitesDto> ObtenerResumenAsync(int? aliadoId)
     {
         var porEstado = await _tramites.ContarPorEstadoAsync(aliadoId);
@@ -289,11 +250,7 @@ public class TramiteService : ITramiteService
     {
         for (var intento = 0; intento < 10; intento++)
         {
-            var sufijo = new string(Enumerable.Range(0, 6)
-                .Select(_ => AlfabetoCodigo[RandomNumberGenerator.GetInt32(AlfabetoCodigo.Length)])
-                .ToArray());
-            var codigo = $"AL-{DateTime.UtcNow.Year}-{sufijo}";
-
+            var codigo = _codigos.Generar();
             if (!await _tramites.CodigoExisteAsync(codigo))
                 return codigo;
         }

@@ -10,11 +10,11 @@ namespace AliadaLegal.Web.Controllers;
 [Route("seguimiento")]
 public class SeguimientoController : Controller
 {
-    private readonly ITramiteService _tramites;
+    private readonly ISeguimientoService _seguimiento;
 
-    public SeguimientoController(ITramiteService tramites)
+    public SeguimientoController(ISeguimientoService seguimiento)
     {
-        _tramites = tramites;
+        _seguimiento = seguimiento;
     }
 
     [HttpGet("")]
@@ -34,7 +34,7 @@ public class SeguimientoController : Controller
     [HttpGet("{codigo}")]
     public async Task<IActionResult> Consultar(string codigo)
     {
-        var resultado = await _tramites.ConsultarSeguimientoAsync(codigo);
+        var resultado = await _seguimiento.ConsultarAsync(codigo);
 
         var vm = new ConsultaSeguimientoViewModel
         {
