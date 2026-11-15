@@ -4,15 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AliadaLegal.Web.Repositories;
 
-public class AliadoRepository : IAliadoRepository
+public class AliadoRepository : Repository<Aliado>, IAliadoRepository
 {
-    private readonly AppDbContext _db;
-
-    public AliadoRepository(AppDbContext db)
+     public AliadoRepository(AppDbContext db) : base(db)
     {
-        _db = db;
     }
-
     public async Task<IReadOnlyList<Aliado>> ListarAsync(bool soloActivos)
     {
         var consulta = _db.Aliados.AsNoTracking().Include(a => a.PaisAsignado).AsQueryable();
@@ -30,16 +26,16 @@ public class AliadoRepository : IAliadoRepository
             .OrderBy(a => a.Nombre)
             .ToListAsync();
 
-    public Task<Aliado?> ObtenerPorIdAsync(int id) =>
+// sobrescribe el metodo generico para incluir el pais asignado
+    public override Task<Aliado?> ObtenerPorIdAsync(int id) =>
         _db.Aliados.Include(a => a.PaisAsignado).FirstOrDefaultAsync(a => a.Id == id);
 
     public Task<bool> ExisteCorreoAsync(string correo, int? excluirId) =>
         _db.Aliados.AnyAsync(a => a.Correo == correo && (excluirId == null || a.Id != excluirId));
 
-    public async Task AgregarAsync(Aliado aliado) => await _db.Aliados.AddAsync(aliado);
 
         public Task<int> ContarTramitesAbiertosAsync(int aliadoId) =>
         _db.Tramites.CountAsync(t => t.AliadoId == aliadoId && t.Estado != EstadoTramite.Entregado);
 
-    public Task GuardarCambiosAsync() => _db.SaveChangesAsync();
+    
 }

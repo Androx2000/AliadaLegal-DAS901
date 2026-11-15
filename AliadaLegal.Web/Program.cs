@@ -36,7 +36,7 @@ builder.Services.AddAuthorization();
 
 // ---- Inyección de dependencias (DIP): los controladores solo conocen interfaces ----
 builder.Services.AddSingleton<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
-
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<ITramiteRepository, TramiteRepository>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IAliadoRepository, AliadoRepository>();
