@@ -22,6 +22,7 @@ public interface IClienteService
     Task<Cliente?> ObtenerAsync(int id);
     Task<ResultadoOperacion<Cliente>> CrearAsync(Cliente cliente);
     Task<ResultadoOperacion> ActualizarAsync(Cliente datos);
+    Task<ResultadoOperacion> EliminarAsync(int id);
 }
 
 public interface IAliadoService
