@@ -18,5 +18,6 @@ public interface ITramiteRepository
     Task<bool> CodigoExisteAsync(string codigo);
     Task<Dictionary<EstadoTramite, int>> ContarPorEstadoAsync(int? aliadoId);
     Task AgregarAsync(Tramite tramite);
+    void Eliminar(Tramite tramite);
     Task GuardarCambiosAsync();
 }

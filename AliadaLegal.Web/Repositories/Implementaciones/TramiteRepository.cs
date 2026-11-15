@@ -83,5 +83,8 @@ public class TramiteRepository : ITramiteRepository
 
     public async Task AgregarAsync(Tramite tramite) => await _db.Tramites.AddAsync(tramite);
 
+    // El historial se borra en cascada (configurado en AppDbContext).
+    public void Eliminar(Tramite tramite) => _db.Tramites.Remove(tramite);
+
     public Task GuardarCambiosAsync() => _db.SaveChangesAsync();
 }
