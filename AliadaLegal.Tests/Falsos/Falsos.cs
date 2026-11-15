@@ -62,6 +62,8 @@ public class TramiteRepositorioFalso : ITramiteRepository
         return Task.CompletedTask;
     }
 
+    public void Eliminar(Tramite tramite) => Datos.Remove(tramite);
+
     public Task GuardarCambiosAsync()
     {
         Guardados++;
@@ -126,6 +128,13 @@ public class AliadoRepositorioFalso : IAliadoRepository
     }
 
     public Task<int> ContarTramitesAbiertosAsync(int aliadoId) => Task.FromResult(TramitesAbiertos);
+
+    public Task<IReadOnlyList<Aliado>> ListarTodosAsync() =>
+        Task.FromResult<IReadOnlyList<Aliado>>(Datos.ToList());
+
+    public void Actualizar(Aliado aliado) { }
+
+    public void Eliminar(Aliado aliado) => Datos.Remove(aliado);
 
     public Task GuardarCambiosAsync() => Task.CompletedTask;
 }
