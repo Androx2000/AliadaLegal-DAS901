@@ -22,6 +22,7 @@ public interface IClienteService
     Task<Cliente?> ObtenerAsync(int id);
     Task<ResultadoOperacion<Cliente>> CrearAsync(Cliente cliente);
     Task<ResultadoOperacion> ActualizarAsync(Cliente datos);
+    Task<ResultadoOperacion> EliminarAsync(int id);
 }
 
 public interface IAliadoService
@@ -37,6 +38,13 @@ public interface ITramiteService
 {
     Task<ResultadoOperacion<Tramite>> CrearAsync(int clienteId, int tipoDocumentoId, int paisDestinoId,
         string? observaciones, string responsable);
+
+    /// <summary>Solo se puede editar un trámite que sigue en estado Solicitado.</summary>
+    Task<ResultadoOperacion> ActualizarAsync(int tramiteId, int clienteId, int tipoDocumentoId,
+        int paisDestinoId, string? observaciones);
+
+    /// <summary>Solo se puede eliminar un trámite que sigue en estado Solicitado.</summary>
+    Task<ResultadoOperacion> EliminarAsync(int tramiteId);
 
     Task<ResultadoOperacion> AsignarAliadoAsync(int tramiteId, int aliadoId, string responsable);
 

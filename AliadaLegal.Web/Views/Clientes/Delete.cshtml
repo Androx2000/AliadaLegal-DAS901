@@ -1,0 +1,51 @@
+@model ClienteDetalleViewModel
+@{
+    ViewData["Title"] = "Eliminar cliente";
+    var tieneTramites = Model.Tramites.Count > 0;
+}
+
+<div class="encabezado-pagina">
+    <div>
+        <nav class="migas" aria-label="Ruta"><a asp-action="Index">Clientes</a> / <a asp-action="Details" asp-route-id="@Model.Id">@Model.Nombre</a> / Eliminar</nav>
+        <h1>Eliminar cliente</h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-xl-7">
+        <div class="al-card">
+            <div class="al-card-body">
+                @if (tieneTramites)
+                {
+                    <div class="alert alert-warning d-flex gap-2" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                        <div>Este cliente tiene <strong>@Model.Tramites.Count trámite(s)</strong> registrados, por lo que no puede eliminarse. Su historial debe conservarse.</div>
+                    </div>
+                }
+                else
+                {
+                    <p class="mb-3">¿Seguro que desea eliminar a este cliente? Esta acción no se puede deshacer.</p>
+                }
+
+                <dl class="datos">
+                    <div><dt>Nombre</dt><dd>@Model.Nombre</dd></div>
+                    <div><dt>Tipo</dt><dd>@Model.TipoCliente</dd></div>
+                    <div><dt>Correo</dt><dd>@Model.Correo</dd></div>
+                    <div><dt>Teléfono</dt><dd>@Model.Telefono</dd></div>
+                    <div><dt>País de origen</dt><dd>@Model.PaisOrigen</dd></div>
+                    <div><dt>Registrado</dt><dd>@Model.FechaRegistro.ToLocalTime().ToString("dd/MM/yyyy")</dd></div>
+                </dl>
+
+                <form asp-action="Delete" asp-route-id="@Model.Id" method="post" data-evitar-doble-envio>
+                    <div class="form-acciones">
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancelar</a>
+                        @if (!tieneTramites)
+                        {
+                            <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar cliente</button>
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

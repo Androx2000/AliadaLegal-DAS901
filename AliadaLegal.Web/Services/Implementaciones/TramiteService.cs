@@ -73,6 +73,51 @@ public class TramiteService : ITramiteService
         return ResultadoOperacion<Tramite>.Ok(tramite);
     }
 
+    // ------------------------------------------------------ Editar y eliminar
+    public async Task<ResultadoOperacion> ActualizarAsync(int tramiteId, int clienteId, int tipoDocumentoId,
+        int paisDestinoId, string? observaciones)
+    {
+        var tramite = await _tramites.ObtenerPorIdAsync(tramiteId);
+        if (tramite == null)
+            return ResultadoOperacion.Fallo("El trámite no existe.");
+
+        if (tramite.Estado != EstadoTramite.Solicitado)
+            return ResultadoOperacion.Fallo("Solo se puede editar un trámite que aún está en estado «Solicitado».");
+
+        if (await _clientes.ObtenerPorIdAsync(clienteId) == null)
+            return ResultadoOperacion.Fallo("El cliente seleccionado no existe.");
+
+        if (await _catalogos.ObtenerTipoDocumentoAsync(tipoDocumentoId) == null)
+            return ResultadoOperacion.Fallo("El tipo de documento seleccionado no existe.");
+
+        if (await _catalogos.ObtenerPaisAsync(paisDestinoId) == null)
+            return ResultadoOperacion.Fallo("El país seleccionado no existe.");
+
+        tramite.ClienteId = clienteId;
+        tramite.TipoDocumentoId = tipoDocumentoId;
+        tramite.PaisDestinoId = paisDestinoId;
+        tramite.Observaciones = string.IsNullOrWhiteSpace(observaciones) ? null : observaciones.Trim();
+        tramite.FechaUltimaActualizacion = DateTime.UtcNow;
+
+        await _tramites.GuardarCambiosAsync();
+        return ResultadoOperacion.Ok();
+    }
+
+    public async Task<ResultadoOperacion> EliminarAsync(int tramiteId)
+    {
+        var tramite = await _tramites.ObtenerPorIdAsync(tramiteId);
+        if (tramite == null)
+            return ResultadoOperacion.Fallo("El trámite no existe.");
+
+        // Si ya tiene aliado o avanzó de estado, hay gestión real registrada: no se borra.
+        if (tramite.Estado != EstadoTramite.Solicitado || tramite.AliadoId != null)
+            return ResultadoOperacion.Fallo("Solo se puede eliminar un trámite en estado «Solicitado» y sin aliado asignado.");
+
+        _tramites.Eliminar(tramite);
+        await _tramites.GuardarCambiosAsync();
+        return ResultadoOperacion.Ok();
+    }
+
     // ---------------------------------------------------------------- RF03
     public async Task<ResultadoOperacion> AsignarAliadoAsync(int tramiteId, int aliadoId, string responsable)
     {

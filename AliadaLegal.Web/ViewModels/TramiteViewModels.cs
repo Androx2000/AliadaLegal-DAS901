@@ -29,6 +29,10 @@ public class TramiteListaViewModel
 
 public class TramiteFormViewModel
 {
+    // Solo se usan al editar (en Create quedan en 0 y vacío).
+    public int Id { get; set; }
+    public string? Codigo { get; set; }
+
     [Required(ErrorMessage = "Seleccione el cliente.")]
     [Display(Name = "Cliente")]
     public int? ClienteId { get; set; }

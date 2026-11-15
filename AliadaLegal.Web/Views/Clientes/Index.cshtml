@@ -67,6 +67,7 @@
                                     <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@c.Id" title="Ver detalle"><i class="bi bi-eye" aria-hidden="true"></i><span class="visually-hidden">Ver @c.Nombre</span></a>
                                     <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@c.Id" title="Editar"><i class="bi bi-pencil" aria-hidden="true"></i><span class="visually-hidden">Editar @c.Nombre</span></a>
                                     <a class="btn btn-outline-primary" asp-controller="Tramites" asp-action="Create" asp-route-clienteId="@c.Id" title="Nuevo trámite"><i class="bi bi-plus-lg" aria-hidden="true"></i><span class="visually-hidden">Nuevo trámite para @c.Nombre</span></a>
+                                    <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@c.Id" title="Eliminar"><i class="bi bi-trash" aria-hidden="true"></i><span class="visually-hidden">Eliminar @c.Nombre</span></a>
                                 </div>
                             </td>
                         </tr>

@@ -39,6 +39,7 @@ builder.Services.AddSingleton<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<ICodigoSeguimientoGenerador, CodigoSeguimientoGenerador>();
 
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<ITramiteRepository, TramiteRepository>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IAliadoRepository, AliadoRepository>();

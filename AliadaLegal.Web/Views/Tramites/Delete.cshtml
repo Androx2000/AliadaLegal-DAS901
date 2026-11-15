@@ -1,0 +1,38 @@
+@model TramiteItemViewModel
+@{
+    ViewData["Title"] = $"Eliminar trámite {Model.Codigo}";
+}
+
+<div class="encabezado-pagina">
+    <div>
+        <nav class="migas" aria-label="Ruta"><a asp-action="Index">Trámites</a> / <a asp-action="Details" asp-route-id="@Model.Id">Detalle</a> / Eliminar</nav>
+        <h1>Eliminar trámite</h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-xl-7">
+        <div class="al-card al-card-body">
+            <div class="alert alert-warning d-flex gap-2">
+                <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+                <div>¿Seguro que desea eliminar este trámite? Se borra también su historial y <strong>no se puede deshacer</strong>.</div>
+            </div>
+
+            <dl class="datos">
+                <div><dt>Código</dt><dd><span class="codigo-seguimiento">@Model.Codigo</span></dd></div>
+                <div><dt>Cliente</dt><dd>@Model.Cliente</dd></div>
+                <div><dt>Tipo de documento</dt><dd>@Model.TipoDocumento</dd></div>
+                <div><dt>País de gestión</dt><dd>@Model.PaisDestino</dd></div>
+                <div><dt>Estado</dt><dd><estado-badge estado="@Model.Estado" /></dd></div>
+                <div><dt>Solicitado</dt><dd>@Model.FechaSolicitud.ToLocalTime().ToString("dd/MM/yyyy")</dd></div>
+            </dl>
+
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" data-evitar-doble-envio>
+                <div class="form-acciones">
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar trámite</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

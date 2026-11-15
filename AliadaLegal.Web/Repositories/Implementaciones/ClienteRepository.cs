@@ -24,7 +24,7 @@ public class ClienteRepository : IClienteRepository
         if (!string.IsNullOrWhiteSpace(texto))
         {
             var t = texto.Trim();
-            consulta = consulta.Where(c => c.Nombre.Contains(t) || c.Correo.Contains(t));
+            consulta = consulta.Where(c => c.Nombre.Contains(t) || c.Correo.Contains(t) || c.Telefono.Contains(t));
         }
 
         return await consulta.OrderBy(c => c.Nombre).ToListAsync();
@@ -43,6 +43,11 @@ public class ClienteRepository : IClienteRepository
         _db.Clientes.AnyAsync(c => c.Correo == correo && (excluirId == null || c.Id != excluirId));
 
     public async Task AgregarAsync(Cliente cliente) => await _db.Clientes.AddAsync(cliente);
+
+    public Task<bool> TieneTramitesAsync(int clienteId) =>
+        _db.Tramites.AnyAsync(t => t.ClienteId == clienteId);
+
+    public void Eliminar(Cliente cliente) => _db.Clientes.Remove(cliente);
 
     public Task GuardarCambiosAsync() => _db.SaveChangesAsync();
 }
