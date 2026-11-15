@@ -11,11 +11,11 @@ namespace AliadaLegal.Web.Controllers.Api;
 [Route("api/tramites")]
 public class TramitesApiController : ControllerBase
 {
-    private readonly ITramiteService _tramites;
+    private readonly ISeguimientoService _seguimiento;
 
-    public TramitesApiController(ITramiteService tramites)
+    public TramitesApiController(ISeguimientoService seguimiento)
     {
-        _tramites = tramites;
+        _seguimiento = seguimiento;
     }
 
     /// <summary>GET /api/tramites/seguimiento/AL-2026-K7M2QX</summary>
@@ -24,7 +24,7 @@ public class TramitesApiController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TramiteSeguimientoDto>> Seguimiento(string codigo)
     {
-        var dto = await _tramites.ConsultarSeguimientoAsync(codigo);
+        var dto = await _seguimiento.ConsultarAsync(codigo);
         if (dto == null)
             return NotFound(new { mensaje = "No se encontró un trámite con ese código." });
 

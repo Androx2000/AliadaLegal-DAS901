@@ -49,6 +49,5 @@ public interface ITramiteService
 
     Task<IReadOnlyList<Tramite>> ListarAsync(TramiteFiltro filtro, int? limite = null);
     Task<Tramite?> ObtenerAsync(int id, int? aliadoIdRestriccion);
-    Task<TramiteSeguimientoDto?> ConsultarSeguimientoAsync(string codigo);
     Task<ResumenTramitesDto> ObtenerResumenAsync(int? aliadoId);
 }
