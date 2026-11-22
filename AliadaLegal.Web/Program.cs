@@ -5,6 +5,7 @@ using AliadaLegal.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,26 @@ builder.Services.AddControllersWithViews(opciones =>
     // Con tipos anulables habilitados, las propiedades string no anulables serían "obligatorias" de forma implícita.
     // Se desactiva para controlar la obligatoriedad solo con [Required] y mensajes propios.
     opciones.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+});
+
+// ---- Swagger / OpenAPI: documentación interactiva de la API REST ----
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(opciones =>
+{
+    opciones.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "AliadaLegal API",
+        Version = "v1",
+        Description = "API REST para gestionar clientes, aliados y trámites de AliadaLegal."
+    });
+
+    // Solo se documentan los controladores de la API (los MVC devuelven vistas, no JSON).
+    opciones.DocInclusionPredicate((_, api) =>
+        api.RelativePath?.StartsWith("api/", StringComparison.OrdinalIgnoreCase) == true);
+
+    // Incluye los comentarios /// <summary> de los controladores y DTOs.
+    var xml = Path.Combine(AppContext.BaseDirectory, $"{typeof(Program).Assembly.GetName().Name}.xml");
+    opciones.IncludeXmlComments(xml);
 });
 
 // ---- Base de datos (SQL Server LocalDB) ----
@@ -57,7 +78,17 @@ builder.Services.AddScoped<IReporteService, ReporteService>();
 
 var app = builder.Build();
 
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
+{
+    // Swagger solo en desarrollo: en producción no se publica el contrato de la API.
+    app.UseSwagger();
+    app.UseSwaggerUI(opciones =>
+    {
+        opciones.SwaggerEndpoint("/swagger/v1/swagger.json", "AliadaLegal API v1");
+        opciones.DocumentTitle = "AliadaLegal API";
+    });
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();

@@ -6,6 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>AliadaLegal.Web</RootNamespace>
     <AssemblyName>AliadaLegal.Web</AssemblyName>
+    <!-- Genera el XML con los comentarios /// para que Swagger los muestre. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- CS1591/CS1573: no exigir comentario XML completo en todos los miembros públicos. -->
+    <NoWarn>$(NoWarn);1591;1573</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +22,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
   </ItemGroup>
 
 </Project>
