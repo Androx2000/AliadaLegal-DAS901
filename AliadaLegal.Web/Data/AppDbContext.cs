@@ -113,6 +113,16 @@ public class AppDbContext : DbContext
     modelBuilder.Entity<Tramite>()
     .HasIndex(t => t.CodigoSeguimiento)
     .IsUnique();
-            
+
+        // Fase 4: el correo identifica a un cliente o aliado. El servicio ya lo valida
+        // (ExisteCorreoAsync), pero el índice único garantiza la regla en la base de datos
+        // aunque dos solicitudes lleguen al mismo tiempo o alguien inserte por fuera de la app.
+        modelBuilder.Entity<Cliente>()
+            .HasIndex(c => c.Correo)
+            .IsUnique();
+
+        modelBuilder.Entity<Aliado>()
+            .HasIndex(a => a.Correo)
+            .IsUnique();
     }
 }
