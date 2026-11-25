@@ -49,15 +49,15 @@ public class Tramite
         FechaUltimaActualizacion = DateTime.UtcNow;
     }
 
-    public bool PuedeCambiarA(EstadoTramite nuevo)
-    {
-        if (Estado == EstadoTramite.Entregado)
-            return false;
-
-        return (int)nuevo == (int)Estado + 1 ||
-            (Estado == EstadoTramite.DocumentoObtenido &&
-             nuevo == EstadoTramite.EnTransito);
-    }
+    /// <summary>
+    /// Indica si el trámite puede avanzar al estado <paramref name="nuevo"/>.
+    /// No define una regla propia: delega en <see cref="EstadoTramiteFlujo"/>,
+    /// que es la única fuente de verdad del orden de estados y de la apostilla.
+    /// </summary>
+    /// <remarks>Requiere que <see cref="TipoDocumento"/> esté cargado; si no, se asume que no requiere apostilla.</remarks>
+    public bool PuedeCambiarA(EstadoTramite nuevo) =>
+        EstadoTramiteFlujo.EsTransicionValida(
+            Estado, nuevo, TipoDocumento?.RequiereApostilla ?? false);
 
     public void ActualizarEstado(
         EstadoTramite nuevo,
