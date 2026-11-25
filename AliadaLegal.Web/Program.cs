@@ -52,6 +52,25 @@ builder.Services
         opciones.Cookie.HttpOnly = true;
         opciones.ExpireTimeSpan = TimeSpan.FromHours(8);
         opciones.SlidingExpiration = true;
+
+        // Las rutas /api no deben redirigir a la página de login (302 + HTML):
+        // un cliente de API espera 401 (sin sesión) o 403 (sin permiso).
+        opciones.Events.OnRedirectToLogin = contexto =>
+        {
+            if (contexto.Request.Path.StartsWithSegments("/api"))
+                contexto.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            else
+                contexto.Response.Redirect(contexto.RedirectUri);
+            return Task.CompletedTask;
+        };
+        opciones.Events.OnRedirectToAccessDenied = contexto =>
+        {
+            if (contexto.Request.Path.StartsWithSegments("/api"))
+                contexto.Response.StatusCode = StatusCodes.Status403Forbidden;
+            else
+                contexto.Response.Redirect(contexto.RedirectUri);
+            return Task.CompletedTask;
+        };
     });
 builder.Services.AddAuthorization();
 
