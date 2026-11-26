@@ -1,4 +1,5 @@
 using AliadaLegal.Web.Data;
+using AliadaLegal.Web.Infraestructura;
 using AliadaLegal.Web.Models;
 using AliadaLegal.Web.Repositories;
 using AliadaLegal.Web.Services;
@@ -16,6 +17,21 @@ builder.Services.AddControllersWithViews(opciones =>
     // Se desactiva para controlar la obligatoriedad solo con [Required] y mensajes propios.
     opciones.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
 });
+
+// ---- Errores de la API: todas las respuestas de error en formato ProblemDetails (RFC 9457) ----
+builder.Services.AddProblemDetails(opciones =>
+{
+    // Cada error lleva la ruta que lo produjo y un traceId, el mismo que aparece en el log,
+    // para que el administrador pueda encontrar el error exacto que vio el cliente.
+    opciones.CustomizeProblemDetails = contexto =>
+    {
+        var http = contexto.HttpContext;
+        contexto.ProblemDetails.Instance ??= $"{http.Request.Method} {http.Request.Path}";
+        contexto.ProblemDetails.Extensions.TryAdd("traceId",
+            System.Diagnostics.Activity.Current?.Id ?? http.TraceIdentifier);
+    };
+});
+builder.Services.AddExceptionHandler<ApiExceptionHandler>();
 
 // ---- Swagger / OpenAPI: documentación interactiva de la API REST ----
 builder.Services.AddEndpointsApiExplorer();
@@ -109,11 +125,25 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
-app.UseStatusCodePagesWithReExecute("/Home/Error", "?codigo={0}");
+// ---- Manejo de errores, separado para la API y para las vistas ----
+// API: excepciones → ApiExceptionHandler; códigos sin cuerpo (401, 403, 404, 405…) → ProblemDetails en JSON.
+app.UseWhen(ApiExceptionHandler.EsRutaApi, api =>
+{
+    api.UseExceptionHandler();
+    api.UseStatusCodePages();
+});
+
+// MVC: la página de error amigable de siempre (en desarrollo se ve la página de excepciones detallada).
+app.UseWhen(contexto => !ApiExceptionHandler.EsRutaApi(contexto), web =>
+{
+    if (!app.Environment.IsDevelopment())
+        web.UseExceptionHandler("/Home/Error");
+    web.UseStatusCodePagesWithReExecute("/Home/Error", "?codigo={0}");
+});
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
