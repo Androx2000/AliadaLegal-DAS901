@@ -56,6 +56,9 @@ namespace AliadaLegal.Web.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Correo")
+                        .IsUnique();
+
                     b.HasIndex("PaisAsignadoId");
 
                     b.ToTable("Aliados");
@@ -99,6 +102,9 @@ namespace AliadaLegal.Web.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Correo")
+                        .IsUnique();
 
                     b.HasIndex("PaisOrigenId");
 
