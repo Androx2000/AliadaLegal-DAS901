@@ -53,9 +53,14 @@ builder.Services.AddSwaggerGen(opciones =>
     opciones.IncludeXmlComments(xml);
 });
 
-// ---- Base de datos (SQL Server LocalDB) ----
+// ---- Base de datos (SQL Server LocalDB / Azure SQL) ----
 builder.Services.AddDbContext<AppDbContext>(opciones =>
-    opciones.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    opciones.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sql => sql.EnableRetryOnFailure(
+            maxRetryCount: 10,
+            maxRetryDelay: TimeSpan.FromSeconds(15),
+            errorNumbersToAdd: null)));
 
 // ---- Autenticación por cookie y autorización por roles (RNF01, RNF02) ----
 builder.Services
