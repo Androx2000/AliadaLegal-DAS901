@@ -17,4 +17,9 @@ public class UsuarioRepository : IUsuarioRepository
         _db.Usuarios
             .Include(u => u.Rol)
             .FirstOrDefaultAsync(u => u.Correo == correo);
+
+    public Task<Usuario?> ObtenerPorIdAsync(int id) =>
+        _db.Usuarios
+            .Include(u => u.Rol)
+            .FirstOrDefaultAsync(u => u.Id == id);
 }
