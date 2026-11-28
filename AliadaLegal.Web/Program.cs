@@ -3,8 +3,8 @@ using AliadaLegal.Web.Infraestructura;
 using AliadaLegal.Web.Models;
 using AliadaLegal.Web.Repositories;
 using AliadaLegal.Web.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -44,6 +44,9 @@ builder.Services.AddSwaggerGen(opciones =>
         Description = "API REST para gestionar clientes, aliados y trámites de AliadaLegal."
     });
 
+    // Botón "Authorize" para probar la API con un token JWT.
+    opciones.AgregarSeguridadJwt();
+
     // Solo se documentan los controladores de la API (los MVC devuelven vistas, no JSON).
     opciones.DocInclusionPredicate((_, api) =>
         api.RelativePath?.StartsWith("api/", StringComparison.OrdinalIgnoreCase) == true);
@@ -62,38 +65,16 @@ builder.Services.AddDbContext<AppDbContext>(opciones =>
             maxRetryDelay: TimeSpan.FromSeconds(15),
             errorNumbersToAdd: null)));
 
-// ---- Autenticación por cookie y autorización por roles (RNF01, RNF02) ----
-builder.Services
-    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(opciones =>
-    {
-        opciones.LoginPath = "/Account/Login";
-        opciones.AccessDeniedPath = "/Account/AccessDenied";
-        opciones.Cookie.Name = "AliadaLegal.Auth";
-        opciones.Cookie.HttpOnly = true;
-        opciones.ExpireTimeSpan = TimeSpan.FromHours(8);
-        opciones.SlidingExpiration = true;
-
-        // Las rutas /api no deben redirigir a la página de login (302 + HTML):
-        // un cliente de API espera 401 (sin sesión) o 403 (sin permiso).
-        opciones.Events.OnRedirectToLogin = contexto =>
-        {
-            if (contexto.Request.Path.StartsWithSegments("/api"))
-                contexto.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            else
-                contexto.Response.Redirect(contexto.RedirectUri);
-            return Task.CompletedTask;
-        };
-        opciones.Events.OnRedirectToAccessDenied = contexto =>
-        {
-            if (contexto.Request.Path.StartsWithSegments("/api"))
-                contexto.Response.StatusCode = StatusCodes.Status403Forbidden;
-            else
-                contexto.Response.Redirect(contexto.RedirectUri);
-            return Task.CompletedTask;
-        };
-    });
-builder.Services.AddAuthorization();
+// ---- Seguridad: ASP.NET Core Identity + cookie (vistas MVC) + JWT (API REST) ----
+var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
+if (string.IsNullOrWhiteSpace(jwt.Key) || jwt.Key.Length < 32)
+{
+    // Sin clave configurada se genera una temporal: los tokens dejan de valer al reiniciar la aplicación.
+    // En producción se debe definir la clave (mínimo 32 caracteres) con la variable de entorno Jwt__Key.
+    jwt.Key = Convert.ToBase64String(RandomNumberGenerator.GetBytes(48));
+}
+builder.Services.AddSingleton(jwt);
+builder.Services.AddAutenticacionAliadaLegal(jwt);
 
 // ---- Inyección de dependencias (DIP): los controladores solo conocen interfaces ----
 builder.Services.AddSingleton<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
@@ -114,6 +95,7 @@ builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<IAliadoService, AliadoService>();
 builder.Services.AddScoped<ICatalogoService, CatalogoService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IReporteService, ReporteService>();
 
 var app = builder.Build();

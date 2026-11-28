@@ -5,4 +5,5 @@ namespace AliadaLegal.Web.Repositories;
 public interface IUsuarioRepository
 {
     Task<Usuario?> ObtenerPorCorreoAsync(string correo);
+    Task<Usuario?> ObtenerPorIdAsync(int id);
 }

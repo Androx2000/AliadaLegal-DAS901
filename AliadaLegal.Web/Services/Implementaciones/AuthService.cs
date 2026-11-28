@@ -1,26 +1,23 @@
 using AliadaLegal.Web.Models;
-using AliadaLegal.Web.Repositories;
 using Microsoft.AspNetCore.Identity;
 
 namespace AliadaLegal.Web.Services;
 
 public class AuthService : IAuthService
 {
-    private readonly IUsuarioRepository _usuarios;
-    private readonly IPasswordHasher<Usuario> _hasher;
+    private readonly UserManager<Usuario> _userManager;
 
-    public AuthService(IUsuarioRepository usuarios, IPasswordHasher<Usuario> hasher)
+    public AuthService(UserManager<Usuario> userManager)
     {
-        _usuarios = usuarios;
-        _hasher = hasher;
+        _userManager = userManager;
     }
 
     public async Task<Usuario?> ValidarCredencialesAsync(string correo, string password)
     {
-        var usuario = await _usuarios.ObtenerPorCorreoAsync(correo.Trim());
+        // ASP.NET Core Identity: busca por correo y verifica el hash de la contraseña.
+        var usuario = await _userManager.FindByEmailAsync(correo.Trim());
         if (usuario == null || !usuario.Activo) return null;
 
-        var resultado = _hasher.VerifyHashedPassword(usuario, usuario.PasswordHash, password);
-        return resultado == PasswordVerificationResult.Failed ? null : usuario;
+        return await _userManager.CheckPasswordAsync(usuario, password) ? usuario : null;
     }
 }
